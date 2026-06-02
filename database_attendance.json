@@ -1,0 +1,870 @@
+{
+  "users": [
+    {
+      "id": "aadhira",
+      "name": "Aadhira S",
+      "email": "aadhira@leapstart.gmail.com",
+      "role": "student",
+      "linkedinUrl": "https://www.linkedin.com/in/aadhira-s-360367395/",
+      "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Aadhira",
+      "bio": "Experiential student at Leapstart of Tech, passionate about computer vision and automated decision models.",
+      "skills": [
+        "React",
+        "Python",
+        "Computer Vision",
+        "Tailwind CSS"
+      ],
+      "projects": [
+        {
+          "title": "Defect Detector",
+          "description": "An automated real-time factory defect vision detection model using OpenCV.",
+          "tags": [
+            "Python",
+            "OpenCV",
+            "Deep Learning"
+          ]
+        },
+        {
+          "title": "Tech Portfolio",
+          "description": "Responsive 3D portfolio showcasing project accomplishments.",
+          "tags": [
+            "React",
+            "Three.js",
+            "Tailwind"
+          ]
+        }
+      ],
+      "specialty": "1st Year Student",
+      "passwordHash": "aadhira@123"
+    },
+    {
+      "id": "abhishek",
+      "name": "Abhishek Singh",
+      "email": "abhishek@leapstart.gmail.com",
+      "role": "student",
+      "linkedinUrl": "https://www.linkedin.com/in/abhishek-singh1570/",
+      "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Abhishek",
+      "bio": "Emerging Data Scientist specializing in neural networks and backend scalability systems at LeapStart.",
+      "skills": [
+        "Data Analysis",
+        "Node.js",
+        "Neural Networks",
+        "SQL"
+      ],
+      "projects": [
+        {
+          "title": "Predictive Analytics Engine",
+          "description": "Customer churn predictor running on custom multilayer perceptron logs.",
+          "tags": [
+            "Python",
+            "TensorFlow",
+            "Pandas"
+          ]
+        }
+      ],
+      "specialty": "1st Year Student",
+      "passwordHash": "abhishek@123"
+    },
+    {
+      "id": "akash",
+      "name": "Akash Aakula",
+      "email": "akash@leapstart.gmail.com",
+      "role": "student",
+      "linkedinUrl": "https://www.linkedin.com/in/akash-aakula-584002397/",
+      "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Akash",
+      "bio": "Full Stack Engineer-in-training at LeapStart School of Tech. Passionate about interactive terminal environments.",
+      "skills": [
+        "HTML/CSS",
+        "JavaScript",
+        "Express.js",
+        "React"
+      ],
+      "projects": [
+        {
+          "title": "Live Classroom Lab",
+          "description": "Real-time terminal simulator matching remote shell access setups.",
+          "tags": [
+            "Node.js",
+            "WebSockets",
+            "Xterm.js"
+          ]
+        }
+      ],
+      "specialty": "1st Year Student",
+      "passwordHash": "akash@123"
+    },
+    {
+      "id": "ashwith",
+      "name": "Ashwith Thatipally",
+      "email": "ashwith@leapstart.gmail.com",
+      "role": "student",
+      "linkedinUrl": "https://www.linkedin.com/in/ashwith-thatipally-490690390/",
+      "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Ashwith",
+      "bio": "Aspiring software dev focused on UI/UX optimization frameworks and automated workflow pipes.",
+      "skills": [
+        "Tailwind CSS",
+        "React Hooks",
+        "Figma",
+        "Redux"
+      ],
+      "projects": [
+        {
+          "title": "Agile Taskboard",
+          "description": "A drag-and-drop workflow visualizer for educational teams.",
+          "tags": [
+            "React",
+            "Framer Motion",
+            "UUID"
+          ]
+        }
+      ],
+      "specialty": "1st Year Student",
+      "passwordHash": "ashwith@123"
+    },
+    {
+      "id": "assad",
+      "name": "Assad Abuubaida",
+      "email": "assad@leapstart.gmail.com",
+      "role": "student",
+      "linkedinUrl": "https://www.linkedin.com/in/abuubaida-assad-359ab8396/",
+      "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Assad",
+      "bio": "Infrastructure enthusiast practicing Linux automation and container deployments in experimental environments.",
+      "skills": [
+        "Linux Admin",
+        "Docker Orchestration",
+        "Python Automation",
+        "Bash Scripting"
+      ],
+      "projects": [
+        {
+          "title": "AutoDeploy Script suite",
+          "description": "Automated standard sandbox provisioning using relative paths and isolated shells.",
+          "tags": [
+            "Bash",
+            "Linux",
+            "cron"
+          ]
+        }
+      ],
+      "specialty": "1st Year Student",
+      "passwordHash": "assad@123"
+    },
+    {
+      "id": "bashamoni",
+      "name": "Bashamoni Shiva kumar",
+      "email": "bashamoni@leapstart.gmail.com",
+      "role": "student",
+      "linkedinUrl": "https://www.linkedin.com/in/bashamoni-shiva-kumar-6a08bb390/",
+      "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Shiva",
+      "bio": "Passionate AI model builder working with deep learning datasets and neural networks at LeapStart.",
+      "skills": [
+        "NLP Model Tuner",
+        "Python NumPy",
+        "SQL Data Pipes",
+        "Keras"
+      ],
+      "projects": [
+        {
+          "title": "Review Classifier",
+          "description": "Bespoke text sentiment categorization tool optimized for low system latency.",
+          "tags": [
+            "Python",
+            "Keras",
+            "TensorFlow"
+          ]
+        }
+      ],
+      "specialty": "1st Year Student",
+      "passwordHash": "bashamoni@123"
+    },
+    {
+      "id": "kellampalli",
+      "name": "Kellampalli Saathvik",
+      "email": "kellampalli@leapstart.gmail.com",
+      "role": "student",
+      "linkedinUrl": "https://www.linkedin.com/in/kellampalli-saathvik/",
+      "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Saathvik",
+      "bio": "Computer Science developer focused on structured databases, system architecture and server optimization.",
+      "skills": [
+        "PostgreSQL",
+        "Next.js",
+        "TypeScript Server",
+        "GraphQL"
+      ],
+      "projects": [
+        {
+          "title": "DataHub Central",
+          "description": "Normalized system backend logging user coordinates and attendance tokens safely.",
+          "tags": [
+            "GraphQL",
+            "Database Schema",
+            "CJS Node"
+          ]
+        }
+      ],
+      "specialty": "1st Year Student",
+      "passwordHash": "kellampalli@123"
+    },
+    {
+      "id": "syed",
+      "name": "Syed Hanzala Abrar",
+      "email": "syed@leapstart.gmail.com",
+      "role": "student",
+      "linkedinUrl": "https://www.linkedin.com/in/syed-hanzala-abrar-68b29b395/",
+      "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Syed",
+      "bio": "Front-end enthusiast exploring complex reactive architectures and dynamic layouts under modern browsers.",
+      "skills": [
+        "Vite",
+        "JavaScript ES6",
+        "CSS Variables",
+        "Responsive Design"
+      ],
+      "projects": [
+        {
+          "title": "Leapstart Portal UI",
+          "description": "High fidelity student hub UI design centering dark-mode styling variables.",
+          "tags": [
+            "Vite",
+            "Tailwind Theme",
+            "Motion UI"
+          ]
+        }
+      ],
+      "specialty": "1st Year Student",
+      "passwordHash": "syed@123"
+    },
+    {
+      "id": "jaswanth",
+      "name": "Jaswanth Santhosh gorlamandala",
+      "email": "jaswanth@leapstart.gmail.com",
+      "role": "student",
+      "linkedinUrl": "https://www.linkedin.com/in/jaswanth-santhosh-gorlamandala-720361395/",
+      "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Jaswanth",
+      "bio": "Experimental technologist tracking algorithmic runtime speeds and database indexes at LeapStart School.",
+      "skills": [
+        "Algorithms",
+        "Python Stats",
+        "MySQL Optimizing",
+        "React Hooks"
+      ],
+      "projects": [
+        {
+          "title": "Sort Speed Visualizer",
+          "description": "A gorgeous react grid showcasing comparison limits of sorting graphs.",
+          "tags": [
+            "React",
+            "TypeScript",
+            "Bespoke CSS"
+          ]
+        }
+      ],
+      "specialty": "1st Year Student",
+      "passwordHash": "jaswanth@123"
+    },
+    {
+      "id": "eswar",
+      "name": "EswarSaketh Maturi",
+      "email": "eswar@leapstart.gmail.com",
+      "role": "student",
+      "linkedinUrl": "https://www.linkedin.com/in/eswarsaketh-maturi-023626395/",
+      "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Eswar",
+      "bio": "Aspiring machine learning researcher building and evaluating structured regression models.",
+      "skills": [
+        "Data Scavenging",
+        "Pandas Datasets",
+        "Matplotlib Layouts",
+        "C++"
+      ],
+      "projects": [
+        {
+          "title": "Research Hub",
+          "description": "Automatic document meta reference scraper using Python scripts.",
+          "tags": [
+            "Python Scraper",
+            "Research Parse",
+            "Pandas"
+          ]
+        }
+      ],
+      "specialty": "1st Year Student",
+      "passwordHash": "eswarsaketh@123"
+    },
+    {
+      "id": "faizaan",
+      "name": "Mohammed Faizaan",
+      "email": "faizaan@leapstart.gmail.com",
+      "role": "student",
+      "linkedinUrl": "https://www.linkedin.com/in/mohammed-faizaan-943305395/",
+      "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Faizaan",
+      "bio": "Meticulous coder with focus on asynchronous node threads and REST API proxies.",
+      "skills": [
+        "RESTful Routing",
+        "Node JS Threading",
+        "NoSQL Filesystem",
+        "Jest Tests"
+      ],
+      "projects": [
+        {
+          "title": "Proxy API Engine",
+          "description": "Lightweight routing middle layer proxying server queries without exposing secrets.",
+          "tags": [
+            "Express.js",
+            "Proxy Controller",
+            "JSON Web Token"
+          ]
+        }
+      ],
+      "specialty": "1st Year Student",
+      "passwordHash": "mohammed@123"
+    },
+    {
+      "id": "hyder",
+      "name": "Mohammed Hyder Shareef",
+      "email": "hyder@leapstart.gmail.com",
+      "role": "student",
+      "linkedinUrl": "https://www.linkedin.com/in/mohammed-hyder-shareef-61116a361/",
+      "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Hyder",
+      "bio": "Passionate coder exploring AI chat assistants and knowledge bases using retrieval grounding models.",
+      "skills": [
+        "GenAI Integration",
+        "Vite Server",
+        "MongoDB Store",
+        "Tailwind Theme"
+      ],
+      "projects": [
+        {
+          "title": "Insight Bot",
+          "description": "A chat assistant optimized for school course curriculum grounding contexts.",
+          "tags": [
+            "@google/genai",
+            "Vite Plugin",
+            "Tailwind UI"
+          ]
+        }
+      ],
+      "specialty": "1st Year Student",
+      "passwordHash": "mohammed@123"
+    },
+    {
+      "id": "brahmani",
+      "name": "Ponnam Brahmani",
+      "email": "brahmani@leapstart.gmail.com",
+      "role": "student",
+      "linkedinUrl": "https://www.linkedin.com/in/ponnam-brahmani-341395395/",
+      "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Brahmani",
+      "bio": "Pragmatic software engineering student seeking highly user-centered frontend products and layouts.",
+      "skills": [
+        "React Flow",
+        "Tailwind CSS Layouts",
+        "Aesthetic Typography",
+        "Firebase Auth"
+      ],
+      "projects": [
+        {
+          "title": "Event Manager UI",
+          "description": "Dynamic calendar interface using modern grid layouts and custom date markers.",
+          "tags": [
+            "React Hooks",
+            "Grids",
+            "Shadow Cards"
+          ]
+        }
+      ],
+      "specialty": "1st Year Student",
+      "passwordHash": "ponnam@123"
+    },
+    {
+      "id": "humera",
+      "name": "Humera Thabassum Shaik",
+      "email": "humera@leapstart.gmail.com",
+      "role": "student",
+      "linkedinUrl": "https://www.linkedin.com/in/humera-thabassum-shaik-7551b9385/",
+      "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Humera",
+      "bio": "Frontend engineer focused on accessible layouts, color hierarchy, and animated micro-interactions.",
+      "skills": [
+        "Framer Motion",
+        "WCAG Color Contrast",
+        "Inter Font Pairing",
+        "Vite Build"
+      ],
+      "projects": [
+        {
+          "title": "Accessible Calendar",
+          "description": "Fully screen-readable student schedule tracking dashboard featuring high contrast modes.",
+          "tags": [
+            "React-a11y",
+            "Tailwind Contrast",
+            "Icons"
+          ]
+        }
+      ],
+      "specialty": "1st Year Student",
+      "passwordHash": "humera@123"
+    },
+    {
+      "id": "suhas",
+      "name": "Suhas Choppala",
+      "email": "suhas@leapstart.gmail.com",
+      "role": "mentor",
+      "linkedinUrl": "https://www.linkedin.com/in/suhas-choppala-9321b8218/",
+      "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=S01_Suhas",
+      "bio": "Suhas Choppala. Professional Full Stack Mentor at LeapStart School of Tech. Teaches end-to-end full stack web engineering (React, NodeJS, Express, State management, TS architectures).",
+      "skills": [
+        "React 19+",
+        "Express JS Server",
+        "ES Modules Bundle",
+        "UI Core Systems",
+        "API Design",
+        "Vite Setup"
+      ],
+      "projects": [
+        {
+          "title": "Full Stack Lab Framework",
+          "description": "The core blueprint repository used to bootstrap secure sandbox full stack nodes.",
+          "tags": [
+            "React",
+            "Express",
+            "Vite"
+          ]
+        }
+      ],
+      "specialty": "Full Stack Engineering Mentor",
+      "passwordHash": "suhas@123"
+    },
+    {
+      "id": "goli",
+      "name": "Goli Venu Gopal",
+      "email": "goli@leapstart.gmail.com",
+      "role": "mentor",
+      "linkedinUrl": "https://www.linkedin.com/in/goli-venu-gopal-72794621/",
+      "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=M02_Goli",
+      "bio": "Goli Venu Gopal. DB and Backend APIs Expert at LeapStart. Specialist in database query indexing, SQL/NoSQL systems, normalization, security rules, and server-side logic.",
+      "skills": [
+        "Database Security",
+        "MySQL Indexing",
+        "PostgreSQL Clusters",
+        "API Gateway Scaling",
+        "CJS Server Node"
+      ],
+      "projects": [
+        {
+          "title": "LeapStart Attendance Engine v1",
+          "description": "A highly resilient student data caching engine protecting individual student P2P lounges.",
+          "tags": [
+            "NoSQL DB",
+            "Index Optimizations",
+            "JSON State"
+          ]
+        }
+      ],
+      "specialty": "Database & Backend API Mentor",
+      "passwordHash": "goli@123"
+    },
+    {
+      "id": "manoj",
+      "name": "Manoj Karajada",
+      "email": "manoj@leapstart.gmail.com",
+      "role": "mentor",
+      "linkedinUrl": "https://www.linkedin.com/in/manoj-kumar-karajada/",
+      "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=M03_Manoj",
+      "bio": "Manoj Karajada. Dedicated Linux and Cloud Systems Guru at LeapStart. Expert in container runtimes, deployment architectures, system commands, automation files, and deployment security.",
+      "skills": [
+        "Enterprise Linux",
+        "Shell Cryptography",
+        "Container Security",
+        "cron logs",
+        "Docker Environments"
+      ],
+      "projects": [
+        {
+          "title": "Sandboxed Terminal Kernel",
+          "description": "Isolated virtual execution terminals running shell directives and safe validation tasks.",
+          "tags": [
+            "CJS Kernel",
+            "Linux automation",
+            "Bash Engine"
+          ]
+        }
+      ],
+      "specialty": "Linux & System Architecture Mentor",
+      "passwordHash": "manoj@123"
+    },
+    {
+      "id": "saikrishna",
+      "name": "SAIKRISHNA JAVVAJI",
+      "email": "saikrishna@leapstart.gmail.com",
+      "role": "admin",
+      "linkedinUrl": "https://www.linkedin.com/in/saikrishnajavvaji/",
+      "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=A01_Sai",
+      "bio": "SAIKRISHNA JAVVAJI. Founder of LeapStart School of Technology. Empowering future tech leaders through experiential engineering and direct mentor connections.",
+      "skills": [
+        "Visionary Leadership",
+        "EdTech Innovation",
+        "Experiential Pedagogy",
+        "Strategic Scaling"
+      ],
+      "projects": [
+        {
+          "title": "LeapStart School Tech Paradigm",
+          "description": "The groundbreaking system scaling industry-led professional training labs across regions.",
+          "tags": [
+            "Branding",
+            "Experiential Framework",
+            "Scale"
+          ]
+        }
+      ],
+      "specialty": "Founder & Chief Executive",
+      "passwordHash": "saikrishna@123"
+    },
+    {
+      "id": "manikanta",
+      "name": "Manikanta Mothukuri",
+      "email": "manikanta@leapstart.gmail.com",
+      "role": "admin",
+      "linkedinUrl": "https://www.linkedin.com/in/manikanta-mothukuri/",
+      "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=A02_Mani",
+      "bio": "Manikanta Mothukuri. Admin & Operational Lead at LeapStart. Directs technical operations, student onboarding pipelines, and system configuration.",
+      "skills": [
+        "Logistical Operations",
+        "Student Pipelines",
+        "Technical Onboarding",
+        "AWS Cloud Management"
+      ],
+      "projects": [
+        {
+          "title": "Operational Student CRM",
+          "description": "Custom internal record organizer detailing professional student progress trackers.",
+          "tags": [
+            "Node System",
+            "CRM",
+            "Logs"
+          ]
+        }
+      ],
+      "specialty": "Operations Director & Admin",
+      "passwordHash": "manikanta@123"
+    },
+    {
+      "id": "yuktha",
+      "name": "Yuktha Pemmireddy",
+      "email": "yuktha@leapstart.gmail.com",
+      "role": "admin",
+      "linkedinUrl": "https://www.linkedin.com/in/yuktha-pemmireddy-0321a3283/",
+      "pfpUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=A03_Yuktha",
+      "bio": "Yuktha Pemmireddy. HR Manager at LeapStart School of Technology. Directs staffing, student retention, counselor sessions, and mentor attendance tracking.",
+      "skills": [
+        "HR Staff Onboarding",
+        "Student Relations",
+        "Conflict Management",
+        "Organizational Policies"
+      ],
+      "projects": [
+        {
+          "title": "Staff and Mentor Retention Index",
+          "description": "Analytics system measuring staff engagement and daily experiential teaching hours.",
+          "tags": [
+            "HR Analytics",
+            "Retainer Systems",
+            "Reports"
+          ]
+        }
+      ],
+      "specialty": "Human Resources (HR) Director",
+      "passwordHash": "yuktha@123"
+    }
+  ],
+  "attendance": [
+    {
+      "id": "att-1",
+      "userId": "aadhira",
+      "date": "2026-06-02",
+      "status": "present",
+      "checkInTime": "2026-06-02T17:53:05Z",
+      "location": "On-Campus, LeapStart Hyderabad Lab",
+      "verified": true
+    },
+    {
+      "id": "att-2",
+      "userId": "abhishek",
+      "date": "2026-06-02",
+      "status": "present",
+      "checkInTime": "2026-06-02T17:53:05Z",
+      "location": "On-Campus, LeapStart Hyderabad Lab",
+      "verified": true
+    },
+    {
+      "id": "att-3",
+      "userId": "akash",
+      "date": "2026-06-02",
+      "status": "present",
+      "checkInTime": "2026-06-02T17:53:05Z",
+      "location": "On-Campus, LeapStart Hyderabad Lab",
+      "verified": true
+    },
+    {
+      "id": "att-4",
+      "userId": "ashwith",
+      "date": "2026-06-02",
+      "status": "present",
+      "checkInTime": "2026-06-02T17:53:05Z",
+      "location": "On-Campus, LeapStart Hyderabad Lab",
+      "verified": true
+    },
+    {
+      "id": "att-5",
+      "userId": "assad",
+      "date": "2026-06-02",
+      "status": "present",
+      "checkInTime": "2026-06-02T17:53:05Z",
+      "location": "On-Campus, LeapStart Hyderabad Lab",
+      "verified": true
+    },
+    {
+      "id": "att-6",
+      "userId": "bashamoni",
+      "date": "2026-06-02",
+      "status": "absent",
+      "verified": false
+    },
+    {
+      "id": "att-7",
+      "userId": "kellampalli",
+      "date": "2026-06-02",
+      "status": "present",
+      "checkInTime": "2026-06-02T17:53:05Z",
+      "location": "On-Campus, LeapStart Hyderabad Lab",
+      "verified": true
+    },
+    {
+      "id": "att-8",
+      "userId": "syed",
+      "date": "2026-06-02",
+      "status": "present",
+      "checkInTime": "2026-06-02T17:53:05Z",
+      "location": "On-Campus, LeapStart Hyderabad Lab",
+      "verified": true
+    },
+    {
+      "id": "att-9",
+      "userId": "jaswanth",
+      "date": "2026-06-02",
+      "status": "present",
+      "checkInTime": "2026-06-02T17:53:05Z",
+      "location": "On-Campus, LeapStart Hyderabad Lab",
+      "verified": true
+    },
+    {
+      "id": "att-10",
+      "userId": "eswar",
+      "date": "2026-06-02",
+      "status": "present",
+      "checkInTime": "2026-06-02T17:53:05Z",
+      "location": "On-Campus, LeapStart Hyderabad Lab",
+      "verified": true
+    },
+    {
+      "id": "att-11",
+      "userId": "faizaan",
+      "date": "2026-06-02",
+      "status": "absent",
+      "verified": false
+    },
+    {
+      "id": "att-12",
+      "userId": "hyder",
+      "date": "2026-06-02",
+      "status": "present",
+      "checkInTime": "2026-06-02T17:53:05Z",
+      "location": "On-Campus, LeapStart Hyderabad Lab",
+      "verified": true
+    },
+    {
+      "id": "att-13",
+      "userId": "brahmani",
+      "date": "2026-06-02",
+      "status": "present",
+      "checkInTime": "2026-06-02T17:53:05Z",
+      "location": "On-Campus, LeapStart Hyderabad Lab",
+      "verified": true
+    },
+    {
+      "id": "att-14",
+      "userId": "humera",
+      "date": "2026-06-02",
+      "status": "present",
+      "checkInTime": "2026-06-02T17:53:05Z",
+      "location": "On-Campus, LeapStart Hyderabad Lab",
+      "verified": true
+    },
+    {
+      "id": "att-15",
+      "userId": "suhas",
+      "date": "2026-06-02",
+      "status": "present",
+      "checkInTime": "2026-06-02T17:53:05Z",
+      "location": "On-Campus, LeapStart Hyderabad Lab",
+      "verified": true
+    },
+    {
+      "id": "att-16",
+      "userId": "goli",
+      "date": "2026-06-02",
+      "status": "present",
+      "checkInTime": "2026-06-02T17:53:05Z",
+      "location": "On-Campus, LeapStart Hyderabad Lab",
+      "verified": true
+    },
+    {
+      "id": "att-17",
+      "userId": "manoj",
+      "date": "2026-06-02",
+      "status": "present",
+      "checkInTime": "2026-06-02T17:53:05Z",
+      "location": "On-Campus, LeapStart Hyderabad Lab",
+      "verified": true
+    },
+    {
+      "id": "att-18",
+      "userId": "saikrishna",
+      "date": "2026-06-02",
+      "status": "present",
+      "checkInTime": "2026-06-02T17:53:05Z",
+      "location": "On-Campus, LeapStart Hyderabad Lab",
+      "verified": true
+    },
+    {
+      "id": "att-19",
+      "userId": "manikanta",
+      "date": "2026-06-02",
+      "status": "present",
+      "checkInTime": "2026-06-02T17:53:05Z",
+      "location": "On-Campus, LeapStart Hyderabad Lab",
+      "verified": true
+    },
+    {
+      "id": "att-20",
+      "userId": "yuktha",
+      "date": "2026-06-02",
+      "status": "present",
+      "checkInTime": "2026-06-02T17:53:05Z",
+      "location": "On-Campus, LeapStart Hyderabad Lab",
+      "verified": true
+    }
+  ],
+  "leaves": [
+    {
+      "id": "lv-1",
+      "userId": "aadhira",
+      "startDate": "2026-06-05",
+      "endDate": "2026-06-06",
+      "reason": "Attending Smart Vision Hacks 2026 Hackathon presentation.",
+      "status": "approved",
+      "appliedOn": "2026-06-01",
+      "approvedBy": "suhas",
+      "remarks": "Good luck with the Computer Vision demo!"
+    },
+    {
+      "id": "lv-2",
+      "userId": "abhishek",
+      "startDate": "2026-06-10",
+      "endDate": "2026-06-11",
+      "reason": "Neural network training cloud servers deployment maintenance standby.",
+      "status": "pending",
+      "appliedOn": "2026-06-02"
+    }
+  ],
+  "messages": [
+    {
+      "id": "msg-init-1",
+      "senderId": "aadhira",
+      "receiverId": "abhishek",
+      "text": "Hey Abhishek, did you complete Goli sir's DB Schema exercise yet?",
+      "timestamp": "2026-06-02T18:01:25.706Z"
+    },
+    {
+      "id": "msg-init-2",
+      "senderId": "abhishek",
+      "receiverId": "aadhira",
+      "text": "Yes! Loaded it using JSON structures. Direct messaging works too, completely locked from admins!",
+      "timestamp": "2026-06-02T18:11:25.706Z"
+    },
+    {
+      "id": "msg-init-3",
+      "senderId": "aadhira",
+      "receiverId": "abhishek",
+      "text": "That's exactly what I wanted. Privacy compliance is top notch.",
+      "timestamp": "2026-06-02T18:19:45.706Z"
+    }
+  ],
+  "otps": {},
+  "postedProjects": [
+    {
+      "id": "proj-1",
+      "studentId": "aadhira",
+      "studentName": "Aadhira S",
+      "studentEmail": "aadhira@leapstart.gmail.com",
+      "avatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Aadhira",
+      "title": "Autonomous Factory Vision Agent",
+      "description": "An end-to-end automated machine vision inspector prototype deployed for high-speed conveyor belt anomaly tracking using custom neural weights and OpenCV matrices.",
+      "tags": [
+        "Computer Vision",
+        "Python",
+        "OpenCV"
+      ],
+      "githubUrl": "https://github.com/aadhira/defect-detector",
+      "liveUrl": "https://leapstart.in/showcase/defect-detector",
+      "timestamp": "2026-06-01T19:01:25.706Z",
+      "feedbacks": [
+        {
+          "id": "f-1",
+          "authorName": "Suhas Choppala",
+          "authorRole": "Full Stack Engineering Mentor",
+          "authorPfp": "https://api.dicebear.com/7.x/avataaars/svg?seed=S01_Suhas",
+          "comment": "Outstanding implementation of local image matrices! Let's ensure thread pooling works efficiently for high fps streams.",
+          "rating": 5,
+          "timestamp": "2026-06-01T23:01:25.706Z"
+        },
+        {
+          "id": "f-2",
+          "authorName": "Abhishek Singh",
+          "authorRole": "1st Year Student",
+          "authorPfp": "https://api.dicebear.com/7.x/avataaars/svg?seed=Abhishek",
+          "comment": "Tested this directly inside the Hyderabad lab. The inference frame rate is amazing under minimal hardware constraints!",
+          "rating": 4,
+          "timestamp": "2026-06-02T08:54:45.706Z"
+        }
+      ],
+      "averageRating": 4.5
+    },
+    {
+      "id": "proj-2",
+      "studentId": "abhishek",
+      "studentName": "Abhishek Singh",
+      "studentEmail": "abhishek@leapstart.gmail.com",
+      "avatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Abhishek",
+      "title": "Predictive Churn Multilayer Perceptron",
+      "description": "Custom multi-layer MLP predictive classifier trained on large server log indexes to map student retainability scores in telemetry records.",
+      "tags": [
+        "Deep Learning",
+        "TensorFlow",
+        "SQL"
+      ],
+      "githubUrl": "https://github.com/abhishek/predictive-analytics",
+      "liveUrl": "https://leapstart.in/showcase/churn",
+      "timestamp": "2026-05-31T19:01:25.706Z",
+      "feedbacks": [
+        {
+          "id": "f-3",
+          "authorName": "Goli Venu Gopal",
+          "authorRole": "Database & Backend API Mentor",
+          "authorPfp": "https://api.dicebear.com/7.x/avataaars/svg?seed=M02_Goli",
+          "comment": "Exceptional schema structure. Storing normalized state tokens securely ensures this scales comfortably across servers.",
+          "rating": 5,
+          "timestamp": "2026-06-01T03:01:25.706Z"
+        }
+      ],
+      "averageRating": 5
+    }
+  ]
+}

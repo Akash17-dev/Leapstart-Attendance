@@ -1,0 +1,6 @@
+{
+  "name": "LeapStart Attendance",
+  "description": "Professional attendance tracking system for LeapStart School of Technology featuring student peer messaging, custom role dashboards, and a smart chatbot helper.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -7,6 +7,43 @@ import { UserProfile } from "./types";
 
 export const INITIAL_USERS: UserProfile[] = [
   // Students
+  // Newly added 1st-year students
+  {
+    id: "riyah",
+    name: "Riyah Patel",
+    email: "riyah@leapstart.gmail.com",
+    role: "student",
+    linkedinUrl: "https://www.linkedin.com/in/riyah-patel/",
+    pfpUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Riyah",
+    bio: "Enthusiastic beginner focused on web fundamentals and collaborative learning.",
+    skills: ["HTML", "CSS", "JavaScript"],
+    projects: [],
+    specialty: "1st Year Student"
+  },
+  {
+    id: "neel",
+    name: "Neel Kumar",
+    email: "neel@leapstart.gmail.com",
+    role: "student",
+    linkedinUrl: "https://www.linkedin.com/in/neel-kumar/",
+    pfpUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Neel",
+    bio: "Curious developer learning frontend stacks and version control.",
+    skills: ["Git", "React", "TypeScript"],
+    projects: [],
+    specialty: "1st Year Student"
+  },
+  {
+    id: "tanvi",
+    name: "Tanvi Rao",
+    email: "tanvi@leapstart.gmail.com",
+    role: "student",
+    linkedinUrl: "https://www.linkedin.com/in/tanvi-rao/",
+    pfpUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Tanvi",
+    bio: "Learner building foundational programming habits and small projects.",
+    skills: ["Python", "Flask"],
+    projects: [],
+    specialty: "1st Year Student"
+  },
   {
     id: "aadhira",
     name: "Aadhira S",
@@ -28,7 +65,7 @@ export const INITIAL_USERS: UserProfile[] = [
         tags: ["React", "Three.js", "Tailwind"]
       }
     ],
-    specialty: "1st Year Student"
+    specialty: "2nd Year Student"
   },
   {
     id: "abhishek",
@@ -46,7 +83,7 @@ export const INITIAL_USERS: UserProfile[] = [
         tags: ["Python", "TensorFlow", "Pandas"]
       }
     ],
-    specialty: "1st Year Student"
+    specialty: "2nd Year Student"
   },
   {
     id: "akash",
@@ -64,7 +101,7 @@ export const INITIAL_USERS: UserProfile[] = [
         tags: ["Node.js", "WebSockets", "Xterm.js"]
       }
     ],
-    specialty: "1st Year Student"
+    specialty: "2nd Year Student"
   },
   {
     id: "ashwith",
@@ -82,7 +119,7 @@ export const INITIAL_USERS: UserProfile[] = [
         tags: ["React", "Framer Motion", "UUID"]
       }
     ],
-    specialty: "1st Year Student"
+    specialty: "2nd Year Student"
   },
   {
     id: "assad",
@@ -100,7 +137,7 @@ export const INITIAL_USERS: UserProfile[] = [
         tags: ["Bash", "Linux", "cron"]
       }
     ],
-    specialty: "1st Year Student"
+    specialty: "2nd Year Student"
   },
   {
     id: "bashamoni",
@@ -118,7 +155,7 @@ export const INITIAL_USERS: UserProfile[] = [
         tags: ["Python", "Keras", "TensorFlow"]
       }
     ],
-    specialty: "1st Year Student"
+    specialty: "2nd Year Student"
   },
   {
     id: "kellampalli",
@@ -136,7 +173,7 @@ export const INITIAL_USERS: UserProfile[] = [
         tags: ["GraphQL", "Database Schema", "CJS Node"]
       }
     ],
-    specialty: "1st Year Student"
+    specialty: "2nd Year Student"
   },
   {
     id: "syed",
@@ -154,7 +191,7 @@ export const INITIAL_USERS: UserProfile[] = [
         tags: ["Vite", "Tailwind Theme", "Motion UI"]
       }
     ],
-    specialty: "1st Year Student"
+    specialty: "2nd Year Student"
   },
   {
     id: "jaswanth",
@@ -172,7 +209,7 @@ export const INITIAL_USERS: UserProfile[] = [
         tags: ["React", "TypeScript", "Bespoke CSS"]
       }
     ],
-    specialty: "1st Year Student"
+    specialty: "2nd Year Student"
   },
   {
     id: "eswar",
@@ -190,7 +227,7 @@ export const INITIAL_USERS: UserProfile[] = [
         tags: ["Python Scraper", "Research Parse", "Pandas"]
       }
     ],
-    specialty: "1st Year Student"
+    specialty: "2nd Year Student"
   },
   {
     id: "faizaan",
@@ -208,7 +245,7 @@ export const INITIAL_USERS: UserProfile[] = [
         tags: ["Express.js", "Proxy Controller", "JSON Web Token"]
       }
     ],
-    specialty: "1st Year Student"
+    specialty: "2nd Year Student"
   },
   {
     id: "hyder",
@@ -226,7 +263,7 @@ export const INITIAL_USERS: UserProfile[] = [
         tags: ["@google/genai", "Vite Plugin", "Tailwind UI"]
       }
     ],
-    specialty: "1st Year Student"
+    specialty: "2nd Year Student"
   },
   {
     id: "brahmani",
@@ -244,7 +281,7 @@ export const INITIAL_USERS: UserProfile[] = [
         tags: ["React Hooks", "Grids", "Shadow Cards"]
       }
     ],
-    specialty: "1st Year Student"
+    specialty: "2nd Year Student"
   },
   {
     id: "humera",
@@ -262,7 +299,7 @@ export const INITIAL_USERS: UserProfile[] = [
         tags: ["React-a11y", "Tailwind Contrast", "Icons"]
       }
     ],
-    specialty: "1st Year Student"
+    specialty: "2nd Year Student"
   },
 
   // Mentors

@@ -187,7 +187,7 @@ export async function createTables() {
 
     CREATE TABLE IF NOT EXISTS group_messages (
       id TEXT PRIMARY KEY,
-      group_id TEXT NOT NULL CHECK (group_id IN ('all-students')),
+      group_id TEXT NOT NULL,
       sender_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       sender_name TEXT NOT NULL,
       text TEXT NOT NULL,
@@ -233,6 +233,7 @@ export async function createTables() {
   await pool.query(`
     ALTER TABLE users ADD COLUMN IF NOT EXISTS github_url TEXT;
     ALTER TABLE users ADD COLUMN IF NOT EXISTS portfolio_url TEXT;
+    ALTER TABLE group_messages DROP CONSTRAINT IF EXISTS group_messages_group_id_check;
   `);
 }
 
@@ -368,7 +369,7 @@ export async function seedDatabase() {
       {
         id: "f-2",
         authorName: "Abhishek Singh",
-        authorRole: "1st Year Student",
+        authorRole: "2nd Year Student",
         authorPfp: "https://api.dicebear.com/7.x/avataaars/svg?seed=Abhishek",
         comment:
           "Tested this directly inside the Hyderabad lab. The inference frame rate is amazing under minimal hardware constraints!",
@@ -408,9 +409,50 @@ export async function seedDatabase() {
   });
 }
 
+export async function ensureCohortYears() {
+  const firstYearIds = ["riyah", "neel", "tanvi"];
+  await pool.query(
+    `UPDATE users
+     SET specialty = '2nd Year Student'
+     WHERE role = 'student' AND id <> ALL($1::text[])`,
+    [firstYearIds]
+  );
+
+  for (const student of INITIAL_USERS.filter((user) => firstYearIds.includes(user.id))) {
+    await pool.query(
+      `INSERT INTO users
+        (id, name, email, role, linkedin_url, github_url, portfolio_url, pfp_url, bio, skills, projects, specialty, password_hash)
+       VALUES ($1, $2, $3, 'student', $4, $5, $6, $7, $8, $9::jsonb, $10::jsonb, '1st Year Student', $11)
+       ON CONFLICT (id) DO UPDATE
+       SET specialty = '1st Year Student',
+         name = EXCLUDED.name,
+         email = EXCLUDED.email,
+         linkedin_url = EXCLUDED.linkedin_url,
+         pfp_url = EXCLUDED.pfp_url,
+         bio = EXCLUDED.bio,
+         skills = EXCLUDED.skills,
+         projects = EXCLUDED.projects`,
+      [
+        student.id,
+        student.name,
+        student.email,
+        student.linkedinUrl,
+        student.githubUrl || null,
+        student.portfolioUrl || null,
+        student.pfpUrl,
+        student.bio,
+        JSON.stringify(student.skills),
+        JSON.stringify(student.projects),
+        `${student.name.split(" ")[0].toLowerCase()}@123`
+      ]
+    );
+  }
+}
+
 export async function initializeDatabase() {
   await createTables();
   await seedDatabase();
+  await ensureCohortYears();
 }
 
 export async function findUserForLogin(email: string) {
@@ -708,7 +750,7 @@ export async function createMessage(senderId: string, receiverId: string, text: 
   return message;
 }
 
-export async function listGroupMessages(groupId: "all-students") {
+export async function listGroupMessages(groupId: string) {
   const result = await pool.query(
     `SELECT * FROM group_messages WHERE group_id = $1 ORDER BY created_at ASC`,
     [groupId]
@@ -716,12 +758,7 @@ export async function listGroupMessages(groupId: "all-students") {
   return result.rows.map(mapGroupMessage);
 }
 
-export async function createGroupMessage(input: {
-  groupId: "all-students";
-  senderId: string;
-  senderName: string;
-  text: string;
-}) {
+export async function createGroupMessage(input: { groupId: string; senderId: string; senderName: string; text: string }) {
   const message: GroupMessage = {
     id: `grp-${Date.now()}`,
     groupId: input.groupId,

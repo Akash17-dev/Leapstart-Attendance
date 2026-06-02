@@ -377,41 +377,87 @@ This code expires in 15 minutes. Use this code to reset your password.
     }
   });
 
-  app.get("/api/groups/all-students/messages", async (req, res) => {
+  // Generic group message endpoints. groupId can be 'all-students' or 'year-1', 'year-2', etc.
+  app.get("/api/groups/:groupId/messages", async (req, res) => {
     try {
+      const { groupId } = req.params;
       const requesterId = req.headers["x-user-id"] as string;
       const user = requesterId ? await findUserById(requesterId) : null;
-      if (!user || user.role !== "student") {
-        return res.status(403).json({ error: "All-students group is limited to student accounts." });
+
+      // all-students remains student-only
+      if (groupId === "all-students") {
+        if (!user || user.role !== "student") {
+          return res.status(403).json({ error: "All-students group is limited to student accounts." });
+        }
+        return res.json(await listGroupMessages("all-students"));
       }
-      res.json(await listGroupMessages("all-students"));
+
+      // year groups: year-1, year-2, etc.
+      const yearMatch = groupId.match(/^year-(\d+)$/);
+      if (yearMatch) {
+        const yearNum = yearMatch[1];
+        if (!user) return res.status(403).json({ error: "Authentication required." });
+
+        // Students may only view their own year's group.
+        if (user.role === "student") {
+          const specialty = (user.specialty || "").toLowerCase();
+          const allowed = (yearNum === "1" && specialty.includes("1st")) || (yearNum === "2" && specialty.includes("2nd"));
+          if (!allowed) return res.status(403).json({ error: "You are not a member of this year group." });
+          return res.json(await listGroupMessages(groupId));
+        }
+
+        // Mentors may post announcements to year groups, but cannot read student/classmate messages.
+        if (user.role === "mentor") {
+          return res.status(403).json({
+            error: "Mentors can post announcements to this year group, but cannot read classmate messages."
+          });
+        }
+
+        // admins or others: disallow by default
+        return res.status(403).json({ error: "Access restricted to students and mentors only for year groups." });
+      }
+
+      return res.status(404).json({ error: "Unknown group." });
     } catch (err) {
-      console.error("All-students group list error:", err);
+      console.error("Group list error:", err);
       res.status(500).json({ error: "Group message query failed." });
     }
   });
 
-  app.post("/api/groups/all-students/messages", async (req, res) => {
+  app.post("/api/groups/:groupId/messages", async (req, res) => {
     try {
+      const { groupId } = req.params;
       const requesterId = req.headers["x-user-id"] as string;
       const user = requesterId ? await findUserById(requesterId) : null;
       const { text } = req.body;
-      if (!user || user.role !== "student") {
-        return res.status(403).json({ error: "Only students can post in the all-students group." });
+      if (!user) return res.status(403).json({ error: "Authentication required." });
+      if (!text?.trim()) return res.status(400).json({ error: "Message text is required." });
+
+      if (groupId === "all-students") {
+        if (user.role !== "student") return res.status(403).json({ error: "Only students can post in the all-students group." });
+        const msg = await createGroupMessage({ groupId: "all-students", senderId: user.id, senderName: user.name, text: text.trim() });
+        return res.status(201).json(msg);
       }
-      if (!text?.trim()) {
-        return res.status(400).json({ error: "Message text is required." });
+
+      const yearMatch = groupId.match(/^year-(\d+)$/);
+      if (yearMatch) {
+        // Students may post to their year group; mentors may post as well.
+        if (user.role === "student") {
+          const yearNum = yearMatch[1];
+          const specialty = (user.specialty || "").toLowerCase();
+          const allowed = (yearNum === "1" && specialty.includes("1st")) || (yearNum === "2" && specialty.includes("2nd"));
+          if (!allowed) return res.status(403).json({ error: "You are not a member of this year group." });
+        } else if (user.role !== "mentor") {
+          return res.status(403).json({ error: "Only students or mentors can post to year groups." });
+        }
+
+        const msg = await createGroupMessage({ groupId, senderId: user.id, senderName: user.name, text: text.trim() });
+        return res.status(201).json(msg);
       }
-      res.status(201).json(
-        await createGroupMessage({
-          groupId: "all-students",
-          senderId: user.id,
-          senderName: user.name,
-          text: text.trim()
-        })
-      );
+
+      return res.status(404).json({ error: "Unknown group." });
     } catch (err) {
-      console.error("All-students group create error:", err);
+      console.error("Group create error:", err);
       res.status(500).json({ error: "Group message create failed." });
     }
   });

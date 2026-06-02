@@ -19,7 +19,8 @@ import {
   RefreshCw,
   Plus,
   Compass,
-  ArrowUpRight
+  ArrowUpRight,
+  Send
 } from "lucide-react";
 import { UserProfile, AttendanceRecord, LeaveRequest } from "../types";
 import AddStudentPanel from "./AddStudentPanel";
@@ -52,6 +53,9 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
 
   // Selected student profile inspect state
   const [selectedProfileStd, setSelectedProfileStd] = useState<UserProfile | null>(null);
+  const [announcementYear, setAnnouncementYear] = useState("2");
+  const [announcementText, setAnnouncementText] = useState("");
+  const [announcementMsg, setAnnouncementMsg] = useState("");
 
   useEffect(() => {
     fetchStudents();
@@ -182,6 +186,32 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
     fetchAttendanceRecords();
   };
 
+  const handlePostYearAnnouncement = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!announcementText.trim()) {
+      setAnnouncementMsg("Write an announcement before posting.");
+      return;
+    }
+    try {
+      const response = await fetch(`/api/groups/year-${announcementYear}/messages`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-id": user.id
+        },
+        body: JSON.stringify({ text: announcementText.trim() })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Announcement blocked.");
+      }
+      setAnnouncementText("");
+      setAnnouncementMsg(`Posted to ${announcementYear === "1" ? "1st" : "2nd"} year group.`);
+    } catch (err: any) {
+      setAnnouncementMsg(err.message || "Unable to post announcement.");
+    }
+  };
+
   return (
     <div className="dashboard-shell flex-1 overflow-y-auto px-6 py-6 font-sans md:px-8">
       {/* HEADER SECTION */}
@@ -250,6 +280,39 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
               </span>
             </div>
           </div>
+
+          <form onSubmit={handlePostYearAnnouncement} className="premium-panel p-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
+              <div className="min-w-0 flex-1">
+                <h3 className="font-display text-sm font-bold text-slate-900 dark:text-white">Post to year group</h3>
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  Mentors can post announcements to a class group, but cannot read the student conversation.
+                </p>
+                <textarea
+                  rows={2}
+                  value={announcementText}
+                  onChange={(event) => setAnnouncementText(event.target.value)}
+                  placeholder="Announcement for this year group..."
+                  className="premium-input mt-3 resize-none"
+                />
+              </div>
+              <div className="flex gap-2">
+                <select
+                  value={announcementYear}
+                  onChange={(event) => setAnnouncementYear(event.target.value)}
+                  className="premium-input w-32"
+                >
+                  <option value="1">1st year</option>
+                  <option value="2">2nd year</option>
+                </select>
+                <button type="submit" className="apple-primary inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold">
+                  <Send className="h-4 w-4" />
+                  Post
+                </button>
+              </div>
+            </div>
+            {announcementMsg && <p className="mt-3 text-xs font-semibold text-slate-500 dark:text-slate-400">{announcementMsg}</p>}
+          </form>
 
           {/* Grid Layout of students */}
           <div className="rounded-xl border border-gray-200 bg-white  overflow-hidden dark:border-slate-800 dark:bg-slate-900">

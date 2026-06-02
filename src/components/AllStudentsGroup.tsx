@@ -7,6 +7,8 @@ interface AllStudentsGroupProps {
 }
 
 export default function AllStudentsGroup({ user }: AllStudentsGroupProps) {
+  const cohortYear = (user.specialty || "").toLowerCase().includes("1st") ? "1" : "2";
+  const groupId = `year-${cohortYear}`;
   const [messages, setMessages] = useState<GroupMessage[]>([]);
   const [text, setText] = useState("");
   const [error, setError] = useState("");
@@ -16,7 +18,7 @@ export default function AllStudentsGroup({ user }: AllStudentsGroupProps) {
   }, []);
 
   const fetchMessages = async () => {
-    const response = await fetch("/api/groups/all-students/messages", {
+    const response = await fetch(`/api/groups/${groupId}/messages`, {
       headers: { "x-user-id": user.id }
     });
     const data = await response.json();
@@ -30,7 +32,7 @@ export default function AllStudentsGroup({ user }: AllStudentsGroupProps) {
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!text.trim()) return;
-    const response = await fetch("/api/groups/all-students/messages", {
+    const response = await fetch(`/api/groups/${groupId}/messages`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -53,10 +55,12 @@ export default function AllStudentsGroup({ user }: AllStudentsGroupProps) {
         <div className="border-b border-[var(--leap-border)] px-5 py-4">
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-[var(--leap-brand)]" />
-            <h3 className="font-display text-sm font-bold text-slate-950 dark:text-white">All Students Group</h3>
+            <h3 className="font-display text-sm font-bold text-slate-950 dark:text-white">
+              {cohortYear === "1" ? "1st Year" : "2nd Year"} Class Group
+            </h3>
           </div>
           <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-            Student-only group for class announcements, build help, and cohort coordination.
+            Group chat for classmates in your year. Mentors can post announcements here, but cannot read classmate messages.
           </p>
         </div>
 
@@ -85,7 +89,7 @@ export default function AllStudentsGroup({ user }: AllStudentsGroupProps) {
           <input
             value={text}
             onChange={(event) => setText(event.target.value)}
-            placeholder="Message all students..."
+            placeholder={`Message ${cohortYear === "1" ? "1st year" : "2nd year"} classmates...`}
             className="premium-input flex-1"
           />
           <button type="submit" className="apple-primary flex h-10 w-10 items-center justify-center">

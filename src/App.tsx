@@ -101,7 +101,6 @@ export default function App() {
       "leaves": "Leave requests",
       "projects-showcase": "Projects",
       "incubation-hub": "Incubation Hub",
-      "student-group": "All students group",
       "profile-settings": "Profile settings",
       "private-chat": "Messages",
       "student-roster": "Class roster",

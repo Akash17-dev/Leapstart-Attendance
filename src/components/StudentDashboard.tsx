@@ -261,7 +261,7 @@ export default function StudentDashboard({ user, currentTab, onUserUpdated }: St
         </div>
         <div className="flex items-center gap-2 rounded-xl bg-[#e8f2ff]/80 px-3.5 py-1.5 dark:bg-[#0a84ff]/14 text-[#0066cc] dark:text-[#0a84ff] border border-[#007aff]/12">
           <BookOpen className="h-4 w-4" />
-          <span className="font-mono text-xs font-semibold">1st Year Program Lab</span>
+          <span className="font-mono text-xs font-semibold">{user.specialty || "Student Program Lab"}</span>
         </div>
       </header>
 
@@ -269,10 +269,6 @@ export default function StudentDashboard({ user, currentTab, onUserUpdated }: St
 
       {currentTab === "profile-settings" && (
         <ProfileSettingsPanel user={user} onUserUpdated={onUserUpdated} />
-      )}
-
-      {currentTab === "student-group" && (
-        <AllStudentsGroup user={user} />
       )}
 
       {/* NODE: TELEMETRY CHECKIN */}
@@ -595,6 +591,8 @@ export default function StudentDashboard({ user, currentTab, onUserUpdated }: St
 
       {/* NODE: CONFIDENTIAL STUDENT CHAT LOUNGE */}
       {currentTab === "private-chat" && (
+        <div className="space-y-6">
+        <AllStudentsGroup user={user} />
         <div className="grid gap-6 md:grid-cols-3 h-[480px]">
           {/* Peer Roster list */}
           <div className="rounded-xl border border-gray-200 bg-white dark:border-slate-800 dark:bg-slate-900  overflow-hidden flex flex-col">
@@ -732,6 +730,7 @@ export default function StudentDashboard({ user, currentTab, onUserUpdated }: St
               </button>
             </form>
           </div>
+        </div>
         </div>
       )}
     </div>

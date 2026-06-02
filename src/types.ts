@@ -105,7 +105,7 @@ export interface IncubationIdea {
 
 export interface GroupMessage {
   id: string;
-  groupId: "all-students";
+  groupId: string;
   senderId: string;
   senderName: string;
   text: string;

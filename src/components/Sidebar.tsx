@@ -49,7 +49,6 @@ export default function Sidebar({
         { id: "leaves", label: "Leave requests", icon: CalendarDays },
         { id: "projects-showcase", label: "Projects", icon: BookOpen },
         { id: "incubation-hub", label: "Incubation Hub", icon: Rocket },
-        { id: "student-group", label: "All students", icon: Users },
         { id: "private-chat", label: "Messages", icon: MessageSquareDiff },
         { id: "profile-settings", label: "Profile", icon: UserCog }
       ];

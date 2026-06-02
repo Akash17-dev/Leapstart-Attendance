@@ -15,6 +15,10 @@ Welcome to the **LeapStart Experiential Powerhouse** platform. This application 
 
 ---
 
+<h2>Preview:</h2>
+<img width="2926" height="1676" alt="image" src="https://github.com/user-attachments/assets/998c175b-4ea9-4f5b-8182-abb83d8c8861" />
+
+
 ## 🔐 Environment Variables Configuration
 
 This codebase is configured to run securely using server-side environments to fully shield sensitive tokens (such as Gemini keys). 

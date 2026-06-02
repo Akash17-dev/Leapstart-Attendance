@@ -1,3 +1,11 @@
+                                                    
+
+   #                                            Note : Project is not completed yet!
+
+
+
+
+   
 # LeapStart Experiential Portal & Portfolio Feed
 
 Welcome to the **LeapStart Experiential Powerhouse** platform. This application replicates the branding, design guidelines, typography, and light mode aesthetic modeled after [LeapStart India](https://leapstart.in/), bundled with an interactive public Student Showcase, live critique feedback reviews, star-ratings integration, and a secure multi-role administrative gateway.

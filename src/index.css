@@ -1,20 +1,20 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Manrope", -apple-system, BlinkMacSystemFont, "SF Pro Text", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Sora", "Manrope", -apple-system, BlinkMacSystemFont, "SF Pro Display", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
 :root {
   color-scheme: light;
   --leap-ink: #1d1d1f;
-  --leap-orange: #007aff;
+  --leap-orange: #ff6b00;
   --leap-amber: #ff9f0a;
-  --leap-green: #34c759;
+  --leap-green: #10b981;
   --leap-page: #f5f5f7;
   --leap-surface: rgba(255, 255, 255, 0.78);
   --leap-solid-surface: #ffffff;
@@ -23,13 +23,17 @@
   --leap-muted: #6e6e73;
   --leap-blue: #007aff;
   --leap-blue-hover: #006be6;
+  --leap-brand: #ff6b00;
+  --leap-brand-hover: #e85f00;
+  --leap-brand-soft: rgba(255, 107, 0, 0.12);
+  --leap-emerald-soft: rgba(16, 185, 129, 0.12);
   --leap-shadow: 0 18px 45px rgba(0, 0, 0, 0.08), 0 1px 0 rgba(255, 255, 255, 0.75) inset;
 }
 
 .dark {
   color-scheme: dark;
   --leap-ink: #f5f5f7;
-  --leap-orange: #0a84ff;
+  --leap-orange: #ff8a2a;
   --leap-amber: #ffd60a;
   --leap-green: #30d158;
   --leap-page: #000000;
@@ -40,6 +44,10 @@
   --leap-muted: #a1a1a6;
   --leap-blue: #0a84ff;
   --leap-blue-hover: #3395ff;
+  --leap-brand: #ff8a2a;
+  --leap-brand-hover: #ff9b45;
+  --leap-brand-soft: rgba(255, 138, 42, 0.16);
+  --leap-emerald-soft: rgba(48, 209, 88, 0.12);
   --leap-shadow: 0 22px 60px rgba(0, 0, 0, 0.46), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
 }
 
@@ -50,8 +58,8 @@ html {
 body {
   margin: 0;
   background:
-    radial-gradient(circle at 12% -10%, rgba(0, 122, 255, 0.16), transparent 28rem),
-    radial-gradient(circle at 92% 0%, rgba(52, 199, 89, 0.12), transparent 24rem),
+    radial-gradient(circle at 12% -10%, rgba(255, 107, 0, 0.18), transparent 28rem),
+    radial-gradient(circle at 92% 0%, rgba(16, 185, 129, 0.12), transparent 24rem),
     var(--leap-page);
   color: var(--leap-ink);
   text-rendering: optimizeLegibility;
@@ -78,8 +86,10 @@ select {
 }
 
 .leap-gradient-text {
-  color: var(--leap-blue);
-  background: none;
+  color: transparent;
+  background: linear-gradient(120deg, var(--leap-brand), #f59e0b 38%, var(--leap-green));
+  -webkit-background-clip: text;
+  background-clip: text;
 }
 
 .leap-grid-bg {
@@ -98,14 +108,14 @@ select {
 .dashboard-shell {
   min-height: 100%;
   background:
-    radial-gradient(circle at 8% 0%, rgba(0, 122, 255, 0.1), transparent 22rem),
+    radial-gradient(circle at 8% 0%, rgba(255, 107, 0, 0.12), transparent 22rem),
     radial-gradient(circle at 82% 4%, rgba(255, 159, 10, 0.08), transparent 20rem),
     var(--leap-page);
 }
 
 .dark .dashboard-shell {
   background:
-    radial-gradient(circle at 8% 0%, rgba(10, 132, 255, 0.18), transparent 24rem),
+    radial-gradient(circle at 8% 0%, rgba(255, 138, 42, 0.16), transparent 24rem),
     radial-gradient(circle at 82% 4%, rgba(48, 209, 88, 0.1), transparent 22rem),
     #000000;
   color: #f5f5f7;
@@ -266,15 +276,15 @@ select {
 }
 
 .apple-primary {
-  border: 1px solid color-mix(in srgb, var(--leap-blue) 65%, transparent);
+  border: 1px solid color-mix(in srgb, var(--leap-brand) 72%, transparent);
   border-radius: 12px;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--leap-blue) 92%, white), var(--leap-blue));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--leap-brand) 90%, white), var(--leap-brand));
   color: #ffffff;
-  box-shadow: 0 12px 26px color-mix(in srgb, var(--leap-blue) 26%, transparent);
+  box-shadow: 0 12px 26px color-mix(in srgb, var(--leap-brand) 28%, transparent);
 }
 
 .apple-primary:hover {
-  background: linear-gradient(180deg, color-mix(in srgb, var(--leap-blue-hover) 92%, white), var(--leap-blue-hover));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--leap-brand-hover) 90%, white), var(--leap-brand-hover));
 }
 
 .apple-secondary {
@@ -283,6 +293,40 @@ select {
   background: var(--leap-surface);
   color: var(--leap-ink);
   backdrop-filter: blur(20px) saturate(180%);
+}
+
+.leap-brand-pill {
+  border: 1px solid color-mix(in srgb, var(--leap-brand) 24%, transparent);
+  background: color-mix(in srgb, var(--leap-brand) 10%, white);
+  color: color-mix(in srgb, var(--leap-brand) 84%, #1d1d1f);
+}
+
+.dark .leap-brand-pill {
+  background: color-mix(in srgb, var(--leap-brand) 14%, transparent);
+  color: #ffb06a;
+}
+
+.leap-emerald-pill {
+  border: 1px solid color-mix(in srgb, var(--leap-green) 24%, transparent);
+  background: color-mix(in srgb, var(--leap-green) 10%, white);
+  color: color-mix(in srgb, var(--leap-green) 78%, #0f172a);
+}
+
+.dark .leap-emerald-pill {
+  background: color-mix(in srgb, var(--leap-green) 14%, transparent);
+  color: #6ee7b7;
+}
+
+.leap-logo-chip {
+  border: 1px solid var(--leap-border);
+  background: rgba(255, 255, 255, 0.62);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+  backdrop-filter: blur(18px) saturate(180%);
+}
+
+.dark .leap-logo-chip {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.34);
 }
 
 /* Base custom scrollbar styles to support clean scroll areas */

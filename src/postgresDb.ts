@@ -4,6 +4,8 @@ import { INITIAL_LEAVES, INITIAL_USERS, MOCK_ATTENDANCE } from "./data";
 import {
   AttendanceRecord,
   DirectMessage,
+  GroupMessage,
+  IncubationIdea,
   LeaveRequest,
   PostedProject,
   PublicFeedback,
@@ -54,6 +56,8 @@ const mapUser = (row: any): DbUser => ({
   email: row.email,
   role: row.role,
   linkedinUrl: row.linkedin_url,
+  githubUrl: row.github_url || undefined,
+  portfolioUrl: row.portfolio_url || undefined,
   pfpUrl: row.pfp_url,
   bio: row.bio,
   skills: row.skills || [],
@@ -93,6 +97,28 @@ const mapMessage = (row: any): DirectMessage => ({
   timestamp: toIsoString(row.created_at) || new Date().toISOString()
 });
 
+const mapGroupMessage = (row: any): GroupMessage => ({
+  id: row.id,
+  groupId: row.group_id,
+  senderId: row.sender_id,
+  senderName: row.sender_name,
+  text: row.text,
+  timestamp: toIsoString(row.created_at) || new Date().toISOString()
+});
+
+const mapIncubationIdea = (row: any): IncubationIdea => ({
+  id: row.id,
+  title: row.title,
+  problem: row.problem,
+  stage: row.stage,
+  ownerId: row.owner_id,
+  ownerName: row.owner_name,
+  ownerRole: row.owner_role,
+  tags: row.tags || [],
+  attachmentNames: row.attachment_names || [],
+  createdAt: toIsoString(row.created_at) || new Date().toISOString()
+});
+
 const mapProject = (row: any): PostedProject => ({
   id: row.id,
   studentId: row.student_id,
@@ -117,6 +143,8 @@ export async function createTables() {
       email TEXT NOT NULL UNIQUE,
       role TEXT NOT NULL CHECK (role IN ('student', 'mentor', 'admin')),
       linkedin_url TEXT NOT NULL,
+      github_url TEXT,
+      portfolio_url TEXT,
       pfp_url TEXT NOT NULL,
       bio TEXT NOT NULL,
       skills JSONB NOT NULL DEFAULT '[]'::jsonb,
@@ -157,6 +185,15 @@ export async function createTables() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
 
+    CREATE TABLE IF NOT EXISTS group_messages (
+      id TEXT PRIMARY KEY,
+      group_id TEXT NOT NULL CHECK (group_id IN ('all-students')),
+      sender_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      sender_name TEXT NOT NULL,
+      text TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
     CREATE TABLE IF NOT EXISTS otps (
       email TEXT PRIMARY KEY,
       code TEXT NOT NULL,
@@ -178,6 +215,24 @@ export async function createTables() {
       feedbacks JSONB NOT NULL DEFAULT '[]'::jsonb,
       average_rating NUMERIC(3, 1) NOT NULL DEFAULT 0
     );
+
+    CREATE TABLE IF NOT EXISTS incubation_ideas (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      problem TEXT NOT NULL,
+      stage TEXT NOT NULL CHECK (stage IN ('idea', 'prototype', 'pilot', 'launched')),
+      owner_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      owner_name TEXT NOT NULL,
+      owner_role TEXT NOT NULL CHECK (owner_role IN ('student', 'mentor', 'admin')),
+      tags JSONB NOT NULL DEFAULT '[]'::jsonb,
+      attachment_names JSONB NOT NULL DEFAULT '[]'::jsonb,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `);
+
+  await pool.query(`
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS github_url TEXT;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS portfolio_url TEXT;
   `);
 }
 
@@ -186,8 +241,10 @@ export async function resetAndSeedDatabase() {
     DROP TABLE IF EXISTS attendance CASCADE;
     DROP TABLE IF EXISTS leaves CASCADE;
     DROP TABLE IF EXISTS messages CASCADE;
+    DROP TABLE IF EXISTS group_messages CASCADE;
     DROP TABLE IF EXISTS otps CASCADE;
     DROP TABLE IF EXISTS posted_projects CASCADE;
+    DROP TABLE IF EXISTS incubation_ideas CASCADE;
     DROP TABLE IF EXISTS users CASCADE;
   `);
   await createTables();
@@ -202,14 +259,16 @@ export async function seedDatabase() {
     const firstName = user.name.split(" ")[0].toLowerCase();
     await pool.query(
       `INSERT INTO users
-        (id, name, email, role, linkedin_url, pfp_url, bio, skills, projects, specialty, password_hash)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8::jsonb, $9::jsonb, $10, $11)`,
+        (id, name, email, role, linkedin_url, github_url, portfolio_url, pfp_url, bio, skills, projects, specialty, password_hash)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11::jsonb, $12, $13)`,
       [
         user.id,
         user.name,
         user.email,
         user.role,
         user.linkedinUrl,
+        user.githubUrl || null,
+        user.portfolioUrl || null,
         user.pfpUrl,
         user.bio,
         JSON.stringify(user.skills),
@@ -390,6 +449,8 @@ export async function createStudent(input: {
   email: string;
   password: string;
   linkedinUrl?: string;
+  githubUrl?: string;
+  portfolioUrl?: string;
   pfpUrl?: string;
   bio?: string;
   skills?: string[];
@@ -410,6 +471,8 @@ export async function createStudent(input: {
     email: normalizedEmail,
     role: "student",
     linkedinUrl: input.linkedinUrl?.trim() || "https://www.linkedin.com/company/leapstart-co/",
+    githubUrl: input.githubUrl?.trim() || undefined,
+    portfolioUrl: input.portfolioUrl?.trim() || undefined,
     pfpUrl: input.pfpUrl?.trim() || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(normalizedName)}`,
     bio:
       input.bio?.trim() ||
@@ -422,14 +485,16 @@ export async function createStudent(input: {
 
   const result = await pool.query(
     `INSERT INTO users
-      (id, name, email, role, linkedin_url, pfp_url, bio, skills, projects, specialty, password_hash)
-     VALUES ($1, $2, $3, 'student', $4, $5, $6, $7::jsonb, '[]'::jsonb, $8, $9)
+      (id, name, email, role, linkedin_url, github_url, portfolio_url, pfp_url, bio, skills, projects, specialty, password_hash)
+     VALUES ($1, $2, $3, 'student', $4, $5, $6, $7, $8, $9::jsonb, '[]'::jsonb, $10, $11)
      RETURNING *`,
     [
       user.id,
       user.name,
       user.email,
       user.linkedinUrl,
+      user.githubUrl || null,
+      user.portfolioUrl || null,
       user.pfpUrl,
       user.bio,
       JSON.stringify(user.skills),
@@ -475,6 +540,34 @@ export async function updatePassword(email: string, newPassword: string) {
     newPassword,
     email.toLowerCase()
   ]);
+}
+
+export async function updateUserProfile(
+  userId: string,
+  input: {
+    linkedinUrl?: string;
+    githubUrl?: string;
+    portfolioUrl?: string;
+    pfpUrl?: string;
+  }
+) {
+  const result = await pool.query(
+    `UPDATE users
+     SET linkedin_url = COALESCE($2, linkedin_url),
+       github_url = $3,
+       portfolio_url = $4,
+       pfp_url = COALESCE($5, pfp_url)
+     WHERE id = $1
+     RETURNING *`,
+    [
+      userId,
+      input.linkedinUrl?.trim() || null,
+      input.githubUrl?.trim() || null,
+      input.portfolioUrl?.trim() || null,
+      input.pfpUrl?.trim() || null
+    ]
+  );
+  return result.rows[0] ? mapUser(result.rows[0]) : null;
 }
 
 export async function listAttendance(filters: { userId?: string; date?: string }) {
@@ -613,6 +706,67 @@ export async function createMessage(senderId: string, receiverId: string, text: 
     [message.id, message.senderId, message.receiverId, message.text, message.timestamp]
   );
   return message;
+}
+
+export async function listGroupMessages(groupId: "all-students") {
+  const result = await pool.query(
+    `SELECT * FROM group_messages WHERE group_id = $1 ORDER BY created_at ASC`,
+    [groupId]
+  );
+  return result.rows.map(mapGroupMessage);
+}
+
+export async function createGroupMessage(input: {
+  groupId: "all-students";
+  senderId: string;
+  senderName: string;
+  text: string;
+}) {
+  const message: GroupMessage = {
+    id: `grp-${Date.now()}`,
+    groupId: input.groupId,
+    senderId: input.senderId,
+    senderName: input.senderName,
+    text: input.text,
+    timestamp: new Date().toISOString()
+  };
+  await pool.query(
+    `INSERT INTO group_messages (id, group_id, sender_id, sender_name, text, created_at)
+     VALUES ($1, $2, $3, $4, $5, $6)`,
+    [message.id, message.groupId, message.senderId, message.senderName, message.text, message.timestamp]
+  );
+  return message;
+}
+
+export async function listIncubationIdeas() {
+  const result = await pool.query("SELECT * FROM incubation_ideas ORDER BY created_at DESC");
+  return result.rows.map(mapIncubationIdea);
+}
+
+export async function createIncubationIdea(input: Omit<IncubationIdea, "id" | "createdAt">) {
+  const idea: IncubationIdea = {
+    ...input,
+    id: `idea-${Date.now()}`,
+    createdAt: new Date().toISOString()
+  };
+  await pool.query(
+    `INSERT INTO incubation_ideas
+      (id, title, problem, stage, owner_id, owner_name, owner_role, tags, attachment_names, created_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8::jsonb, $9::jsonb, $10)`,
+    [
+      idea.id,
+      idea.title,
+      idea.problem,
+      idea.stage,
+      idea.ownerId,
+      idea.ownerName,
+      idea.ownerRole,
+      JSON.stringify(idea.tags),
+      JSON.stringify(idea.attachmentNames),
+      idea.createdAt
+    ]
+  );
+  return idea;
 }
 
 export async function listProjects() {

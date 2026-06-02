@@ -6,6 +6,7 @@
 import React from "react";
 import {
   CalendarDays,
+  Rocket,
   FileCheck,
   MessageSquareDiff,
   Users,
@@ -17,7 +18,8 @@ import {
   Moon,
   Clock,
   ExternalLink,
-  BookOpen
+  BookOpen,
+  UserCog
 } from "lucide-react";
 import { UserProfile } from "../types";
 
@@ -46,7 +48,10 @@ export default function Sidebar({
         { id: "analytics", label: "Attendance", icon: LineChart },
         { id: "leaves", label: "Leave requests", icon: CalendarDays },
         { id: "projects-showcase", label: "Projects", icon: BookOpen },
-        { id: "private-chat", label: "Messages", icon: MessageSquareDiff }
+        { id: "incubation-hub", label: "Incubation Hub", icon: Rocket },
+        { id: "student-group", label: "All students", icon: Users },
+        { id: "private-chat", label: "Messages", icon: MessageSquareDiff },
+        { id: "profile-settings", label: "Profile", icon: UserCog }
       ];
     } else if (user.role === "mentor") {
       return [
@@ -54,6 +59,7 @@ export default function Sidebar({
         { id: "staff-logs", label: "Mentor check-in", icon: Clock },
         { id: "mentor-leaves", label: "Leave approvals", icon: CalendarDays },
         { id: "projects-showcase", label: "Projects", icon: BookOpen },
+        { id: "incubation-hub", label: "Incubation Hub", icon: Rocket },
         { id: "mentor-profiles", label: "Student profiles", icon: Users }
       ];
     } else {
@@ -63,6 +69,7 @@ export default function Sidebar({
         { id: "admin-students", label: "People Directory", icon: Users },
         { id: "admin-leaves", label: "Leave Board", icon: CalendarDays },
         { id: "projects-showcase", label: "Projects", icon: BookOpen },
+        { id: "incubation-hub", label: "Incubation Hub", icon: Rocket },
         { id: "admin-security", label: "Access Audit", icon: ShieldCheck }
       ];
     }

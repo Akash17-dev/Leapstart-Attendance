@@ -48,6 +48,13 @@ const GUEST_USER: UserProfile = {
 
 const LOGO_DARK = "https://leapstart.in/icons/logo.webp";
 const LOGO_LIGHT = "https://leapstart.in/icons/logo-whitee.webp";
+const INDUSTRY_TOOLS = ["Apple", "Amazon", "Meta", "Google", "Microsoft", "LinkedIn", "Netflix", "Adobe"];
+const PROGRAM_HIGHLIGHTS = [
+  { value: "40+", label: "Real apps" },
+  { value: "1:1", label: "Mentoring" },
+  { value: "4 yrs", label: "Career track" },
+  { value: "Live", label: "Postgres ops" }
+];
 
 export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: LoginScreenProps) {
   // Navigation tabs: "home" | "showcase"
@@ -209,8 +216,8 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
               className="h-10 w-auto object-contain"
               referrerPolicy="no-referrer"
             />
-            <span className="hidden text-[8px] font-mono font-bold tracking-widest text-[#10B981] uppercase sm:block">
-              Attendance Platform
+            <span className="hidden rounded-full px-2 py-1 text-[8px] font-mono font-bold tracking-widest uppercase sm:block leap-emerald-pill">
+              Attendance Studio
             </span>
           </div>
 
@@ -220,7 +227,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
               onClick={() => setActiveTab("home")}
               className={`pb-1 border-b-2 transition-colors cursor-pointer ${
                 activeTab === "home" 
-                  ? "border-[#007aff] text-slate-900 dark:text-white" 
+                  ? "border-[var(--leap-brand)] text-slate-900 dark:text-white" 
                   : "border-transparent text-gray-500 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
@@ -230,12 +237,12 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
               onClick={() => setActiveTab("showcase")}
               className={`pb-1 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
                 activeTab === "showcase" 
-                  ? "border-[#007aff] text-slate-900 dark:text-white" 
+                  ? "border-[var(--leap-brand)] text-slate-900 dark:text-white" 
                   : "border-transparent text-gray-500 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
               <span>Student Portfolios</span>
-              <span className="rounded bg-[#e8f2ff] dark:bg-[#0a84ff]/14 text-[#0066cc] dark:text-[#0a84ff] text-[9px] px-1 font-extrabold animate-pulse">
+              <span className="rounded px-1 text-[9px] font-extrabold animate-pulse leap-brand-pill">
                 Live
               </span>
             </button>
@@ -261,7 +268,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
               type="button"
               onClick={onToggleTheme}
               aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-              className="leap-brand-focus flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-slate-600 transition-colors hover:border-[#007aff]/35 hover:text-[#007aff] dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:text-[#0a84ff]"
+              className="leap-brand-focus apple-secondary flex h-10 w-10 items-center justify-center rounded-full text-slate-600 transition-colors hover:border-[var(--leap-brand)]/35 hover:text-[var(--leap-brand)] dark:text-slate-300"
               title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
             >
               {theme === "dark" ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
@@ -289,7 +296,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
           onClick={() => setActiveTab("home")}
           className={`flex-1 text-center py-2 text-xs font-semibold rounded-xl ${
             activeTab === "home" 
-              ? "bg-[#007aff] text-white" 
+              ? "bg-[var(--leap-brand)] text-white" 
               : "text-gray-500 hover:bg-gray-50 dark:hover:bg-slate-900"
           }`}
         >
@@ -299,7 +306,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
           onClick={() => setActiveTab("showcase")}
           className={`flex-1 text-center py-2 text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 ${
             activeTab === "showcase" 
-              ? "bg-[#007aff] text-white" 
+              ? "bg-[var(--leap-brand)] text-white" 
               : "text-gray-500 hover:bg-gray-50 dark:hover:bg-slate-900"
           }`}
         >
@@ -313,26 +320,26 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
         <div className="pb-24">
           
           {/* Hero block */}
-          <section className="relative overflow-hidden leap-grid-bg py-16 px-4 md:py-28">
+          <section className="relative overflow-hidden leap-grid-bg px-4 py-16 md:py-28">
             {/* Subtle floating dot pattern wrapper */}
             <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:24px_24px] opacity-40 dark:bg-[radial-gradient(#334155_1.2px,transparent_1.2px)] pointer-events-none"></div>
 
             <div className="relative mx-auto max-w-5xl text-center">
               
               {/* Badge label */}
-              <div className="mx-auto mb-4 flex items-center gap-2 rounded-full border border-[var(--leap-border)] bg-white/72 px-4 py-1.5 text-[10px] sm:text-xs font-bold tracking-widest text-[#007aff] uppercase max-w-fit backdrop-blur-xl dark:bg-white/8 dark:text-[#0a84ff]">
+              <div className="mx-auto mb-4 flex items-center gap-2 rounded-full px-4 py-1.5 text-[10px] sm:text-xs font-bold tracking-widest uppercase max-w-fit backdrop-blur-xl leap-brand-pill">
                 <CheckCircle2 className="h-4 w-4" />
-                <span>Admin workspace for AI & data science cohorts</span>
+                <span>Admissions Open for Batch 2026</span>
               </div>
 
               {/* Title Heading */}
-              <h1 className="font-display text-4xl font-black tracking-tight text-[#1E1B4B] sm:text-5xl md:text-7xl dark:text-white leading-tight">
-                Attendance, leave, and student projects in one place
+              <h1 className="mx-auto max-w-5xl font-display text-4xl font-extrabold tracking-normal text-[#1E1B4B] sm:text-6xl md:text-7xl dark:text-white leading-tight">
+                LeapStart attendance, leave, and <span className="leap-gradient-text">student projects</span> in one place
               </h1>
 
               {/* Subtitle Description */}
-              <p className="mx-auto mt-6 max-w-3xl text-sm leading-relaxed text-gray-500 sm:text-lg dark:text-slate-400">
-                Exposure to Industry Tools Used by Leading Tech Giants + LeapStart's Pedagogy to Skill Building. We solve the absolute core issue in engineering education: reverse-engineered curriculum designed Backward from actual enterprise production architectures.
+              <p className="mx-auto mt-6 max-w-3xl text-sm leading-7 text-gray-500 sm:text-lg dark:text-slate-400">
+                A polished operations workspace for LeapStart cohorts, built around experiential learning, industry-style workflows, mentor reviews, and live attendance data.
               </p>
 
               {/* Action Buttons inside Hero */}
@@ -342,37 +349,45 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
                   className="apple-primary w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 text-xs font-bold tracking-wider uppercase transition-all cursor-pointer"
                 >
                   <BookOpen className="h-4.5 w-4.5" />
-                  <span>View Public Student Projects & Feed</span>
+                  <span>View student projects</span>
                 </button>
                 <button
                   onClick={() => setIsLoginModalOpen(true)}
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white/90 hover:bg-slate-50 text-slate-900 font-bold px-8 py-3.5 text-xs tracking-wider uppercase dark:border-slate-800 dark:bg-slate-900/60 dark:text-white transition-all cursor-pointer"
+                  className="apple-secondary w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 text-xs font-bold tracking-wider uppercase transition-all cursor-pointer hover:border-[var(--leap-brand)]/35 hover:text-[var(--leap-brand)]"
                 >
                   <Users className="h-4.5 w-4.5" />
-                  <span>Log Into Student Desk</span>
+                  <span>Open attendance portal</span>
                 </button>
               </div>
 
               {/* Stat Brief Section */}
-              <div className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-6 border-t border-gray-200/60 pt-10 dark:border-slate-800">
-                <div className="text-center">
-                  <h3 className="font-display text-2xl md:text-4xl font-extrabold text-[#007aff] dark:text-[#0a84ff]">100%</h3>
-                  <p className="text-[11px] text-gray-400 dark:text-slate-500 font-bold uppercase tracking-wider mt-1">Portfolio Driven</p>
-                </div>
-                <div className="text-center">
-                  <h3 className="font-display text-2xl md:text-4xl font-extrabold text-[#007aff] dark:text-[#0a84ff]">1-on-1</h3>
-                  <p className="text-[11px] text-gray-400 dark:text-slate-500 font-bold uppercase tracking-wider mt-1">CXO Mentoring</p>
-                </div>
-                <div className="text-center">
-                  <h3 className="font-display text-2xl md:text-4xl font-extrabold text-[#007aff] dark:text-[#0a84ff]">4 Years</h3>
-                  <p className="text-[11px] text-gray-400 dark:text-slate-500 font-bold uppercase tracking-wider mt-1">Structured Grid</p>
-                </div>
-                <div className="text-center">
-                  <h3 className="font-display text-2xl md:text-4xl font-extrabold text-[#007aff] dark:text-[#0a84ff]">Open</h3>
-                  <p className="text-[11px] text-gray-400 dark:text-slate-500 font-bold uppercase tracking-wider mt-1">Reviewer Critique</p>
-                </div>
+              <div className="mx-auto mt-14 grid max-w-4xl grid-cols-2 gap-3 border-t border-gray-200/60 pt-10 dark:border-slate-800 md:grid-cols-4">
+                {PROGRAM_HIGHLIGHTS.map((item) => (
+                  <div key={item.label} className="rounded-2xl border border-[var(--leap-border)] bg-white/64 p-4 text-center shadow-[0_12px_28px_rgba(15,23,42,0.05)] backdrop-blur-xl dark:bg-white/8">
+                    <h3 className="font-display text-2xl font-extrabold text-[var(--leap-brand)] md:text-4xl">{item.value}</h3>
+                    <p className="mt-1 text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">{item.label}</p>
+                  </div>
+                ))}
               </div>
 
+            </div>
+          </section>
+
+          <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 -mt-6">
+            <div className="rounded-3xl border border-[var(--leap-border)] bg-[var(--leap-elevated)] p-5 shadow-[var(--leap-shadow)] backdrop-blur-2xl">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[var(--leap-brand)]">Industry Exposure</span>
+                  <h2 className="mt-1 font-display text-lg font-bold text-[#1d1d1f] dark:text-white">Tools and workflows inspired by leading tech teams</h2>
+                </div>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
+                  {INDUSTRY_TOOLS.map((tool) => (
+                    <div key={tool} className="leap-logo-chip rounded-2xl px-3 py-2 text-center text-[11px] font-extrabold text-[#1d1d1f] dark:text-white">
+                      {tool}
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </section>
 

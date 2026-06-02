@@ -17,6 +17,8 @@ export interface UserProfile {
   email: string;
   role: UserRole;
   linkedinUrl: string;
+  githubUrl?: string;
+  portfolioUrl?: string;
   pfpUrl: string; // profile picture placeholder or LinkedIn mockup
   bio: string;
   skills: string[];
@@ -84,6 +86,28 @@ export interface PostedProject {
 export interface ChatbotMessage {
   id: string;
   role: "user" | "model";
+  text: string;
+  timestamp: string;
+}
+
+export interface IncubationIdea {
+  id: string;
+  title: string;
+  problem: string;
+  stage: "idea" | "prototype" | "pilot" | "launched";
+  ownerId: string;
+  ownerName: string;
+  ownerRole: UserRole;
+  tags: string[];
+  attachmentNames: string[];
+  createdAt: string;
+}
+
+export interface GroupMessage {
+  id: string;
+  groupId: "all-students";
+  senderId: string;
+  senderName: string;
   text: string;
   timestamp: string;
 }

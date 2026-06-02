@@ -11,6 +11,8 @@ import { GoogleGenAI } from "@google/genai";
 import {
   addProject,
   addProjectFeedback,
+  createGroupMessage,
+  createIncubationIdea,
   createStudent,
   checkInAttendance,
   createLeave,
@@ -22,6 +24,8 @@ import {
   getOtp,
   initializeDatabase,
   listAttendance,
+  listGroupMessages,
+  listIncubationIdeas,
   listLeaves,
   listMessages,
   listProjects,
@@ -29,9 +33,10 @@ import {
   respondToLeave,
   updateAttendanceBatch,
   updatePassword,
+  updateUserProfile,
   upsertOtp
 } from "./src/postgresDb";
-import { AttendanceRecord, LeaveRequest, PostedProject, PublicFeedback } from "./src/types";
+import { AttendanceRecord, IncubationIdea, LeaveRequest, PostedProject, PublicFeedback } from "./src/types";
 
 const PORT = Number(process.env.PORT || 3000);
 
@@ -173,7 +178,7 @@ This code expires in 15 minutes. Use this code to reset your password.
 
   app.post("/api/users/students", async (req, res) => {
     try {
-      const { id, name, email, password, linkedinUrl, pfpUrl, bio, skills, specialty } = req.body;
+      const { id, name, email, password, linkedinUrl, githubUrl, portfolioUrl, pfpUrl, bio, skills, specialty } = req.body;
       if (!name || !email || !password) {
         return res.status(400).json({ error: "Student name, email, and password are required." });
       }
@@ -183,6 +188,8 @@ This code expires in 15 minutes. Use this code to reset your password.
         email,
         password,
         linkedinUrl,
+        githubUrl,
+        portfolioUrl,
         pfpUrl,
         bio,
         skills: Array.isArray(skills) ? skills : String(skills || "").split(",").map((skill) => skill.trim()),
@@ -196,6 +203,39 @@ This code expires in 15 minutes. Use this code to reset your password.
         return res.status(409).json({ error: "A student with this ID or email already exists." });
       }
       res.status(500).json({ error: "Student creation failed." });
+    }
+  });
+
+  app.patch("/api/users/:id/profile", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const requesterId = req.headers["x-user-id"] as string;
+      if (requesterId !== id) {
+        return res.status(403).json({ error: "Only the signed-in student can update this profile." });
+      }
+
+      const user = await findUserById(id);
+      if (!user) {
+        return res.status(404).json({ error: "User profile not found." });
+      }
+      if (user.role !== "student") {
+        return res.status(403).json({ error: "Only student profiles can be self-edited here." });
+      }
+
+      const updated = await updateUserProfile(id, {
+        linkedinUrl: req.body.linkedinUrl,
+        githubUrl: req.body.githubUrl,
+        portfolioUrl: req.body.portfolioUrl,
+        pfpUrl: req.body.pfpUrl
+      });
+      if (!updated) {
+        return res.status(404).json({ error: "Profile update target not found." });
+      }
+      const { passwordHash, ...safeUser } = updated;
+      res.json(safeUser);
+    } catch (err) {
+      console.error("Profile update error:", err);
+      res.status(500).json({ error: "Profile update failed." });
     }
   });
 
@@ -334,6 +374,81 @@ This code expires in 15 minutes. Use this code to reset your password.
     } catch (err) {
       console.error("Message create error:", err);
       res.status(500).json({ error: "Message send failed." });
+    }
+  });
+
+  app.get("/api/groups/all-students/messages", async (req, res) => {
+    try {
+      const requesterId = req.headers["x-user-id"] as string;
+      const user = requesterId ? await findUserById(requesterId) : null;
+      if (!user || user.role !== "student") {
+        return res.status(403).json({ error: "All-students group is limited to student accounts." });
+      }
+      res.json(await listGroupMessages("all-students"));
+    } catch (err) {
+      console.error("All-students group list error:", err);
+      res.status(500).json({ error: "Group message query failed." });
+    }
+  });
+
+  app.post("/api/groups/all-students/messages", async (req, res) => {
+    try {
+      const requesterId = req.headers["x-user-id"] as string;
+      const user = requesterId ? await findUserById(requesterId) : null;
+      const { text } = req.body;
+      if (!user || user.role !== "student") {
+        return res.status(403).json({ error: "Only students can post in the all-students group." });
+      }
+      if (!text?.trim()) {
+        return res.status(400).json({ error: "Message text is required." });
+      }
+      res.status(201).json(
+        await createGroupMessage({
+          groupId: "all-students",
+          senderId: user.id,
+          senderName: user.name,
+          text: text.trim()
+        })
+      );
+    } catch (err) {
+      console.error("All-students group create error:", err);
+      res.status(500).json({ error: "Group message create failed." });
+    }
+  });
+
+  app.get("/api/incubation/ideas", async (_req, res) => {
+    try {
+      res.json(await listIncubationIdeas());
+    } catch (err) {
+      console.error("Incubation ideas list error:", err);
+      res.status(500).json({ error: "Incubation hub query failed." });
+    }
+  });
+
+  app.post("/api/incubation/ideas", async (req, res) => {
+    try {
+      const { title, problem, stage, ownerId, tags, attachmentNames } = req.body;
+      if (!title?.trim() || !problem?.trim() || !ownerId) {
+        return res.status(400).json({ error: "Idea title, problem, and owner are required." });
+      }
+      const owner = await findUserById(ownerId);
+      if (!owner) {
+        return res.status(404).json({ error: "Idea owner not found." });
+      }
+      const idea = await createIncubationIdea({
+        title: title.trim(),
+        problem: problem.trim(),
+        stage: (stage || "idea") as IncubationIdea["stage"],
+        ownerId: owner.id,
+        ownerName: owner.name,
+        ownerRole: owner.role,
+        tags: Array.isArray(tags) ? tags : String(tags || "").split(",").map((tag) => tag.trim()).filter(Boolean),
+        attachmentNames: Array.isArray(attachmentNames) ? attachmentNames : []
+      });
+      res.status(201).json(idea);
+    } catch (err) {
+      console.error("Incubation idea create error:", err);
+      res.status(500).json({ error: "Incubation idea create failed." });
     }
   });
 

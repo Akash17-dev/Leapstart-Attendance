@@ -326,6 +326,21 @@ export default function AdminDashboard({ user, currentTab }: AdminDashboardProps
                       <span className="text-xs font-semibold text-gray-400">Linked Email:</span>{" "}
                       <span className="font-mono text-xs font-medium text-[#10B981]">{selectedUser.email}</span>
                     </div>
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      <a href={selectedUser.linkedinUrl} target="_blank" rel="noopener noreferrer" className="rounded-full px-2.5 py-1 text-[10px] font-bold leap-brand-pill">
+                        LinkedIn
+                      </a>
+                      {selectedUser.githubUrl && (
+                        <a href={selectedUser.githubUrl} target="_blank" rel="noopener noreferrer" className="rounded-full px-2.5 py-1 text-[10px] font-bold leap-emerald-pill">
+                          GitHub
+                        </a>
+                      )}
+                      {selectedUser.portfolioUrl && (
+                        <a href={selectedUser.portfolioUrl} target="_blank" rel="noopener noreferrer" className="rounded-full px-2.5 py-1 text-[10px] font-bold leap-emerald-pill">
+                          Portfolio
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
 

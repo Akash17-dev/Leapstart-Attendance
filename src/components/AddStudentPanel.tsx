@@ -12,6 +12,9 @@ const emptyState = {
   email: "",
   password: "",
   linkedinUrl: "",
+  githubUrl: "",
+  portfolioUrl: "",
+  pfpUrl: "",
   bio: "",
   skills: "React, JavaScript, PostgreSQL",
   specialty: "1st Year Student"
@@ -132,6 +135,36 @@ export default function AddStudentPanel({ compact = false, onStudentAdded }: Add
               value={form.skills}
               onChange={(event) => updateField("skills", event.target.value)}
               placeholder="React, Node.js, SQL"
+              className="premium-input"
+            />
+          </label>
+
+          <label className="space-y-1.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">GitHub URL</span>
+            <input
+              value={form.githubUrl}
+              onChange={(event) => updateField("githubUrl", event.target.value)}
+              placeholder="https://github.com/..."
+              className="premium-input"
+            />
+          </label>
+
+          <label className="space-y-1.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Portfolio URL</span>
+            <input
+              value={form.portfolioUrl}
+              onChange={(event) => updateField("portfolioUrl", event.target.value)}
+              placeholder="https://your-portfolio.dev"
+              className="premium-input"
+            />
+          </label>
+
+          <label className="space-y-1.5 md:col-span-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Profile picture URL</span>
+            <input
+              value={form.pfpUrl}
+              onChange={(event) => updateField("pfpUrl", event.target.value)}
+              placeholder="https://..."
               className="premium-input"
             />
           </label>

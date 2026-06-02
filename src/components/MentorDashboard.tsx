@@ -224,9 +224,9 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
               />
             </div>
 
-            {/* Date Picker override */}
+            {/* Manual attendance entry */}
             <div className="flex items-center gap-2.5">
-              <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">Logging Date:</span>
+              <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">Manual date:</span>
               <input
                 id="inp-roster-date"
                 type="date"
@@ -234,6 +234,20 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
                 onChange={(e) => setAttendanceDate(e.target.value)}
                 className="rounded-xl border border-gray-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-gray-800 outline-none focus:border-[#007aff] dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
               />
+            </div>
+          </div>
+
+          <div className="premium-panel p-4">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h3 className="font-display text-sm font-bold text-slate-900 dark:text-white">Manual attendance override</h3>
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  Use the status controls below when a student forgot check-in, network failed, or attendance needs mentor correction.
+                </p>
+              </div>
+              <span className="rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider leap-brand-pill">
+                Date: {attendanceDate}
+              </span>
             </div>
           </div>
 
@@ -576,6 +590,18 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
                       <span>Open LinkedIn profile</span>
                       <ArrowUpRight className="h-3.5 w-3.5" />
                     </a>
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {selectedProfileStd.githubUrl && (
+                        <a href={selectedProfileStd.githubUrl} target="_blank" rel="noopener noreferrer" className="rounded-full px-2.5 py-1 text-[10px] font-bold leap-brand-pill">
+                          GitHub
+                        </a>
+                      )}
+                      {selectedProfileStd.portfolioUrl && (
+                        <a href={selectedProfileStd.portfolioUrl} target="_blank" rel="noopener noreferrer" className="rounded-full px-2.5 py-1 text-[10px] font-bold leap-emerald-pill">
+                          Portfolio
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
 

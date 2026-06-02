@@ -16,6 +16,7 @@ import MentorDashboard from "./components/MentorDashboard";
 import AdminDashboard from "./components/AdminDashboard";
 import ChatbotWidget from "./components/ChatbotWidget";
 import ProjectShowcase from "./components/ProjectShowcase";
+import IncubationHub from "./components/IncubationHub";
 import { UserProfile } from "./types";
 
 export default function App() {
@@ -85,6 +86,11 @@ export default function App() {
     setTheme((current) => (current === "dark" ? "light" : "dark"));
   };
 
+  const handleUserUpdated = (user: UserProfile) => {
+    setCurrentUser(user);
+    localStorage.setItem("leap_user", JSON.stringify(user));
+  };
+
   // Human descriptive screen name mapper passed dynamically to Gemini Chatbot widget context
   const getScreenDisplayName = () => {
     if (!currentUser) return "Sign in";
@@ -94,6 +100,9 @@ export default function App() {
       "analytics": "Attendance",
       "leaves": "Leave requests",
       "projects-showcase": "Projects",
+      "incubation-hub": "Incubation Hub",
+      "student-group": "All students group",
+      "profile-settings": "Profile settings",
       "private-chat": "Messages",
       "student-roster": "Class roster",
       "staff-logs": "Mentor check-in",
@@ -161,10 +170,12 @@ export default function App() {
             <div className="flex-1 overflow-y-auto no-scrollbar">
               {currentTab === "projects-showcase" ? (
                 <ProjectShowcase user={currentUser} />
+              ) : currentTab === "incubation-hub" ? (
+                <IncubationHub user={currentUser} />
               ) : (
                 <>
                   {currentUser.role === "student" && (
-                    <StudentDashboard user={currentUser} currentTab={currentTab} />
+                    <StudentDashboard user={currentUser} currentTab={currentTab} onUserUpdated={handleUserUpdated} />
                   )}
                   {currentUser.role === "mentor" && (
                     <MentorDashboard user={currentUser} currentTab={currentTab} />

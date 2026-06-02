@@ -21,13 +21,16 @@ import {
   RefreshCw
 } from "lucide-react";
 import { UserProfile, AttendanceRecord, LeaveRequest, DirectMessage } from "../types";
+import ProfileSettingsPanel from "./ProfileSettingsPanel";
+import AllStudentsGroup from "./AllStudentsGroup";
 
 interface StudentDashboardProps {
   user: UserProfile;
   currentTab: string;
+  onUserUpdated: (user: UserProfile) => void;
 }
 
-export default function StudentDashboard({ user, currentTab }: StudentDashboardProps) {
+export default function StudentDashboard({ user, currentTab, onUserUpdated }: StudentDashboardProps) {
   // Global States
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [leaves, setLeaves] = useState<LeaveRequest[]>([]);
@@ -263,6 +266,14 @@ export default function StudentDashboard({ user, currentTab }: StudentDashboardP
       </header>
 
       {/* VIEW PANEL ROUTING */}
+
+      {currentTab === "profile-settings" && (
+        <ProfileSettingsPanel user={user} onUserUpdated={onUserUpdated} />
+      )}
+
+      {currentTab === "student-group" && (
+        <AllStudentsGroup user={user} />
+      )}
 
       {/* NODE: TELEMETRY CHECKIN */}
       {currentTab === "checkin" && (

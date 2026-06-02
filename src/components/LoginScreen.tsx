@@ -195,13 +195,13 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 transition-colors duration-500 dark:bg-[#070A11] dark:text-slate-100 font-sans antialiased selection:bg-orange-500 selection:text-white">
+    <div className="min-h-screen bg-[var(--leap-page)] text-[#1d1d1f] transition-colors duration-500 dark:bg-black dark:text-[#f5f5f7] font-sans antialiased selection:bg-[#007aff] selection:text-white">
       
-      {/* 1. BRAND-ALIGNED REPLICA HEADER NAVIGATION BAR */}
-      <header className="sticky top-0 z-40 w-full border-b border-gray-200/80 bg-white/95 backdrop-blur-md dark:border-slate-800/80 dark:bg-[#0B0F17]/95 transition-colors">
+      {/* Brand header navigation */}
+      <header className="sticky top-0 z-40 w-full border-b border-[var(--leap-border)] bg-white/76 backdrop-blur-2xl dark:bg-[#1c1c1e]/72 transition-colors">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 md:px-8">
           
-          {/* LOGO BLOCK REPLICA */}
+          {/* Logo block */}
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab("home")}>
             <img
               src={theme === "dark" ? LOGO_LIGHT : LOGO_DARK}
@@ -220,7 +220,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
               onClick={() => setActiveTab("home")}
               className={`pb-1 border-b-2 transition-colors cursor-pointer ${
                 activeTab === "home" 
-                  ? "border-orange-500 text-slate-900 dark:text-white" 
+                  ? "border-[#007aff] text-slate-900 dark:text-white" 
                   : "border-transparent text-gray-500 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
@@ -230,12 +230,12 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
               onClick={() => setActiveTab("showcase")}
               className={`pb-1 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
                 activeTab === "showcase" 
-                  ? "border-orange-500 text-slate-900 dark:text-white" 
+                  ? "border-[#007aff] text-slate-900 dark:text-white" 
                   : "border-transparent text-gray-500 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
               <span>Student Portfolios</span>
-              <span className="rounded bg-orange-100 dark:bg-orange-950/40 text-orange-700 dark:text-orange-400 text-[9px] px-1 font-extrabold animate-pulse">
+              <span className="rounded bg-[#e8f2ff] dark:bg-[#0a84ff]/14 text-[#0066cc] dark:text-[#0a84ff] text-[9px] px-1 font-extrabold animate-pulse">
                 Live
               </span>
             </button>
@@ -261,7 +261,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
               type="button"
               onClick={onToggleTheme}
               aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-              className="leap-brand-focus flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-slate-600 transition-colors hover:border-orange-300 hover:text-orange-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:text-orange-400"
+              className="leap-brand-focus flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-slate-600 transition-colors hover:border-[#007aff]/35 hover:text-[#007aff] dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:text-[#0a84ff]"
               title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
             >
               {theme === "dark" ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
@@ -273,7 +273,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
                 setViewState("login");
                 setIsLoginModalOpen(true);
               }}
-              className="flex items-center gap-2 rounded-xl bg-[#2E1065] px-4 py-2 text-xs font-semibold text-white  hover:bg-indigo-950  cursor-pointer transition-all"
+              className="apple-primary flex items-center gap-2 px-4 py-2 text-xs font-semibold cursor-pointer transition-all"
             >
               <LogIn className="h-3.5 w-3.5" />
               <span>Student & Staff Portal</span>
@@ -283,13 +283,13 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
         </div>
       </header>
 
-      {/* MOBILE SECONDRY TAB BUTTONS */}
-      <div className="flex md:hidden border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-[#0B0F17] px-4 py-2.5 gap-2.5 transition-colors">
+      {/* Mobile tab buttons */}
+      <div className="flex md:hidden border-b border-[var(--leap-border)] bg-white/76 dark:bg-[#1c1c1e]/72 px-4 py-2.5 gap-2.5 backdrop-blur-2xl transition-colors">
         <button
           onClick={() => setActiveTab("home")}
           className={`flex-1 text-center py-2 text-xs font-semibold rounded-xl ${
             activeTab === "home" 
-              ? "bg-slate-900 text-white dark:bg-slate-800" 
+              ? "bg-[#007aff] text-white" 
               : "text-gray-500 hover:bg-gray-50 dark:hover:bg-slate-900"
           }`}
         >
@@ -299,30 +299,30 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
           onClick={() => setActiveTab("showcase")}
           className={`flex-1 text-center py-2 text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 ${
             activeTab === "showcase" 
-              ? "bg-orange-600 text-white" 
+              ? "bg-[#007aff] text-white" 
               : "text-gray-500 hover:bg-gray-50 dark:hover:bg-slate-900"
           }`}
         >
           <span>Student Portfolios</span>
-          <span className="rounded-full bg-orange-100 text-orange-700 text-[8px] px-1 font-bold animate-ping">●</span>
+          <span className="rounded-full bg-[#e8f2ff] text-[#0066cc] text-[8px] px-1 font-bold animate-ping">●</span>
         </button>
       </div>
 
-      {/* 2. TAB A: EXPERIENTIAL CLASSROOM HOMEPAGE REPLICA */}
+      {/* Main attendance landing */}
       {activeTab === "home" && (
         <div className="pb-24">
           
-          {/* HERO BANNER BLOCK CONTAINER */}
-          <section className="relative overflow-hidden leap-grid-bg py-16 px-4 md:py-28 dark:bg-[#080B12] dark:from-[#0B1222] dark:to-[#070A11]">
+          {/* Hero block */}
+          <section className="relative overflow-hidden leap-grid-bg py-16 px-4 md:py-28">
             {/* Subtle floating dot pattern wrapper */}
             <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:24px_24px] opacity-40 dark:bg-[radial-gradient(#334155_1.2px,transparent_1.2px)] pointer-events-none"></div>
 
             <div className="relative mx-auto max-w-5xl text-center">
               
               {/* Badge label */}
-              <div className="mx-auto mb-4 flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-1.5 text-[10px] sm:text-xs font-semibold tracking-widest text-zinc-700 uppercase max-w-fit dark:border-zinc-800 dark:bg-[#111113] dark:text-zinc-300">
+              <div className="mx-auto mb-4 flex items-center gap-2 rounded-full border border-[var(--leap-border)] bg-white/72 px-4 py-1.5 text-[10px] sm:text-xs font-bold tracking-widest text-[#007aff] uppercase max-w-fit backdrop-blur-xl dark:bg-white/8 dark:text-[#0a84ff]">
                 <CheckCircle2 className="h-4 w-4" />
-                <span>Operations platform for AI & data science cohorts</span>
+                <span>Admin workspace for AI & data science cohorts</span>
               </div>
 
               {/* Title Heading */}
@@ -339,7 +339,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
               <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <button
                   onClick={() => setActiveTab("showcase")}
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-lg bg-zinc-950 dark:bg-zinc-100 dark:text-zinc-950 hover:bg-zinc-800 dark:hover:bg-white text-white font-bold px-8 py-3.5 text-xs tracking-wider uppercase transition-all  cursor-pointer "
+                  className="apple-primary w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 text-xs font-bold tracking-wider uppercase transition-all cursor-pointer"
                 >
                   <BookOpen className="h-4.5 w-4.5" />
                   <span>View Public Student Projects & Feed</span>
@@ -356,19 +356,19 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
               {/* Stat Brief Section */}
               <div className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-6 border-t border-gray-200/60 pt-10 dark:border-slate-800">
                 <div className="text-center">
-                  <h3 className="font-display text-2xl md:text-4xl font-extrabold text-[#2E1065] dark:text-orange-400">100%</h3>
+                  <h3 className="font-display text-2xl md:text-4xl font-extrabold text-[#007aff] dark:text-[#0a84ff]">100%</h3>
                   <p className="text-[11px] text-gray-400 dark:text-slate-500 font-bold uppercase tracking-wider mt-1">Portfolio Driven</p>
                 </div>
                 <div className="text-center">
-                  <h3 className="font-display text-2xl md:text-4xl font-extrabold text-[#2E1065] dark:text-orange-400">1-on-1</h3>
+                  <h3 className="font-display text-2xl md:text-4xl font-extrabold text-[#007aff] dark:text-[#0a84ff]">1-on-1</h3>
                   <p className="text-[11px] text-gray-400 dark:text-slate-500 font-bold uppercase tracking-wider mt-1">CXO Mentoring</p>
                 </div>
                 <div className="text-center">
-                  <h3 className="font-display text-2xl md:text-4xl font-extrabold text-[#2E1065] dark:text-orange-400">4 Years</h3>
+                  <h3 className="font-display text-2xl md:text-4xl font-extrabold text-[#007aff] dark:text-[#0a84ff]">4 Years</h3>
                   <p className="text-[11px] text-gray-400 dark:text-slate-500 font-bold uppercase tracking-wider mt-1">Structured Grid</p>
                 </div>
                 <div className="text-center">
-                  <h3 className="font-display text-2xl md:text-4xl font-extrabold text-[#2E1065] dark:text-orange-400">Open</h3>
+                  <h3 className="font-display text-2xl md:text-4xl font-extrabold text-[#007aff] dark:text-[#0a84ff]">Open</h3>
                   <p className="text-[11px] text-gray-400 dark:text-slate-500 font-bold uppercase tracking-wider mt-1">Reviewer Critique</p>
                 </div>
               </div>
@@ -379,7 +379,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
           {/* LEAPSTART'S PEDAGOGY SECTION */}
           <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 mt-12">
             <div className="text-center mb-10">
-              <span className="text-[11px] tracking-widest font-mono font-bold text-orange-500 uppercase">THE CORE PLATFORM SHIFT</span>
+              <span className="text-[11px] tracking-widest font-mono font-bold text-[#007aff] uppercase">THE CORE PLATFORM SHIFT</span>
               <h2 className="font-display text-2xl sm:text-4xl font-extrabold text-[#1E1B4B] dark:text-white mt-1">
                 LeapStart's Pedagogy for Tech Skill Building
               </h2>
@@ -389,15 +389,15 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
               {[
                 {
                   title: "Agile Learning Environment",
-                  desc: "Students work in project pods with practical standups, code reviews, and structured delivery checkpoints.",
+                  desc: "Students operate in project pods with practical standups, code reviews, and infrastructure checks.",
                   icon: Terminal,
-                  color: "border-zinc-200 bg-zinc-50 text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+                  color: "border-[#007aff]/20 bg-[#007aff]/5 text-[#007aff] dark:text-[#0a84ff]"
                 },
                 {
                   title: "Reverse Engineered Curriculum",
                   desc: "We look at what products enterprise tech giants are actively deploying, then work backward to teach the algorithms and math structures underneath.",
                   icon: RefreshCw,
-                  color: "border-orange-500/20 bg-orange-500/5 text-orange-600 dark:text-orange-400"
+                  color: "border-[#007aff]/20 bg-[#007aff]/5 text-[#007aff] dark:text-[#0a84ff]"
                 },
                 {
                   title: "One-on-One Mentoring",
@@ -415,7 +415,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
                   title: "Internship Driven Learning",
                   desc: "Academic programs that require constant, validated integration inside physical production lines and digital tech teams throughout your engineering path.",
                   icon: Globe,
-                  color: "border-amber-500/20 bg-amber-500/5 text-amber-650 dark:text-amber-400"
+                  color: "border-amber-500/20 bg-[#ff9f0a]/5 text-amber-650 dark:text-[#ffd60a]"
                 },
                 {
                   title: "Learn from CEOs & CXOs",
@@ -426,8 +426,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
               ].map((ped, index) => (
                 <div 
                   key={index} 
-                  className={`rounded-xl border p-6 hover: transition-shadow bg-white dark:bg-[#0B0F17] transition-colors`}
-                  style={{ borderColor: "rgba(226, 232, 240, 0.8)" }}
+                  className="rounded-2xl border border-[var(--leap-border)] bg-[var(--leap-surface)] p-6 backdrop-blur-xl transition-colors"
                 >
                   <div className={`p-3 rounded-xl w-fit ${ped.color}`}>
                     <ped.icon className="h-5 w-5" />
@@ -476,7 +475,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
                   }
                 ].map((frame, index) => (
                   <div key={index} className="rounded-xl bg-white/5 border border-white/10 p-5 hover:bg-white/10 transition-colors">
-                    <span className="text-xs font-mono font-bold text-orange-400 block">{frame.year}</span>
+                    <span className="text-xs font-mono font-bold text-[#0a84ff] block">{frame.year}</span>
                     <h3 className="font-display font-bold text-sm text-white mt-1.5 leading-snug">{frame.title}</h3>
                     <p className="text-[11px] text-zinc-400 mt-2.5 leading-relaxed">{frame.desc}</p>
                   </div>
@@ -488,7 +487,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
           {/* FAQS SECTION */}
           <section id="faq" className="mx-auto max-w-5xl px-4 sm:px-6 md:px-8 mt-24">
             <div className="text-center mb-10">
-              <span className="text-[11px] tracking-widest font-mono font-bold text-orange-500 uppercase">HELP CENTER</span>
+              <span className="text-[11px] tracking-widest font-mono font-bold text-[#007aff] uppercase">HELP CENTER</span>
               <h2 className="font-display text-2xl sm:text-4xl font-extrabold text-[#1E1B4B] dark:text-white mt-1">
                 Frequently Asked Questions
               </h2>
@@ -509,42 +508,42 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
                   a: "Yes. The platform is backed by your local PostgreSQL database, making sure student clock-ins, leave petitions, and portfolio ratings persist cleanly across app restarts."
                 }
               ].map((faq, idx) => (
-                <div key={idx} className="rounded-xl border border-gray-200 bg-white p-5 dark:border-slate-800 dark:bg-[#0B0F17] transition-colors">
+                <div key={idx} className="rounded-2xl border border-[var(--leap-border)] bg-[var(--leap-surface)] p-5 backdrop-blur-xl transition-colors">
                   <h4 className="font-display font-extrabold text-sm text-[#1E1B4B] dark:text-white flex items-center gap-2">
-                    <span className="text-orange-500">Q.</span>
+                    <span className="text-[#007aff]">Q.</span>
                     <span>{faq.q}</span>
                   </h4>
-                  <p className="text-xs text-gray-500 dark:text-slate-400 leading-relaxed mt-2.5 pl-4 border-l border-orange-500/20">{faq.a}</p>
+                  <p className="text-xs text-gray-500 dark:text-slate-400 leading-relaxed mt-2.5 pl-4 border-l border-[#007aff]/20">{faq.a}</p>
                 </div>
               ))}
             </div>
           </section>
 
-          {/* CALL TO ACTION ACCENTS */}
+          {/* Call to action */}
           <section className="mx-auto max-w-5xl px-4 sm:px-6 md:px-8 mt-24 text-center">
-            <div className="rounded-2xl border border-[#e6e8ee] bg-white p-10 text-slate-950 dark:border-zinc-800 dark:bg-[#111113] dark:text-zinc-50 md:p-14 transition-colors">
-              <h2 className="font-display text-3xl sm:text-4xl font-black tracking-tight leading-none">Take The Leap. Lead The Future.</h2>
-              <p className="text-xs sm:text-sm text-zinc-300 mt-4 max-w-xl mx-auto leading-relaxed">
-                Empower your industrial software-engineering capability. Review public repositories, test demo user permissions, or login into the student dashboard.
+            <div className="rounded-3xl border border-[var(--leap-border)] bg-[var(--leap-elevated)] p-10 text-[#1d1d1f] shadow-[var(--leap-shadow)] backdrop-blur-2xl dark:text-[#f5f5f7] md:p-14 transition-colors">
+              <h2 className="font-display text-3xl sm:text-4xl font-black tracking-tight leading-none">Run attendance with clarity.</h2>
+              <p className="text-xs sm:text-sm text-[#6e6e73] dark:text-[#a1a1a6] mt-4 max-w-xl mx-auto leading-relaxed">
+                Review student projects, test role permissions, or sign in to manage attendance, leave, and cohort operations.
               </p>
               <div className="mt-8 flex flex-wrap justify-center gap-4">
                 <button
                   onClick={() => setActiveTab("showcase")}
-                  className="rounded-lg bg-zinc-950 dark:bg-zinc-100 dark:text-zinc-950 hover:bg-zinc-800 dark:hover:bg-white text-white font-bold px-7 py-3 text-xs tracking-wider uppercase transition-colors cursor-pointer"
+                  className="apple-primary px-7 py-3 text-xs font-bold tracking-wider uppercase transition-colors cursor-pointer"
                 >
                   Enter Project Showcase Feed
                 </button>
                 <button
                   onClick={() => setIsLoginModalOpen(true)}
-                  className="rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold px-7 py-3 text-xs tracking-wider uppercase transition-colors cursor-pointer"
+                  className="apple-secondary font-bold px-7 py-3 text-xs tracking-wider uppercase transition-colors cursor-pointer hover:border-[#007aff]/35 hover:text-[#007aff]"
                 >
-                  Access Student Portal
+                  Open admin portal
                 </button>
               </div>
             </div>
           </section>
 
-          {/* REPLICA FOOTER */}
+          {/* Footer */}
           <footer className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 mt-24 border-t border-gray-200 dark:border-slate-800 pt-8 text-center text-xs text-gray-400 select-none">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-2">
@@ -558,7 +557,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
                 <span>• Attendance and student operations platform</span>
               </div>
               <div className="flex gap-4">
-                <a href="https://leapstart.in" target="_blank" rel="noopener noreferrer" className="hover:text-orange-500 transition-colors">Official Website</a>
+                <a href="https://leapstart.in" target="_blank" rel="noopener noreferrer" className="hover:text-[#007aff] transition-colors">Official Website</a>
                 <span className="text-zinc-600">|</span>
                 <span className="text-emerald-500">Local Postgres app</span>
               </div>
@@ -568,7 +567,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
         </div>
       )}
 
-      {/* 3. TAB B: PUBLIC STUDENT PORTFOLIOS SHOWCASE & RATINGS FEED */}
+      {/* Public student portfolios showcase and ratings feed */}
       {activeTab === "showcase" && (
         <div className="mx-auto max-w-5xl pb-24">
           <div className="bg-emerald-50/45 dark:bg-emerald-950/10 border-b border-slate-200 dark:border-slate-800 py-4 px-6 mb-2 rounded-b-2xl flex items-center justify-between gap-4">
@@ -581,12 +580,12 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
             </span>
           </div>
 
-          {/* Embbeding our beautiful projects listing but injecting guestUser profile context */}
+          {/* Public projects listing with guest profile context */}
           <ProjectShowcase user={GUEST_USER} />
         </div>
       )}
 
-      {/* 4. MODAL BACKDROP CONTAINER: SYSTEM ACCESS GATEWAY & LOGIN PORTAL */}
+      {/* Login modal */}
       <AnimatePresence>
         {isLoginModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/65 backdrop-blur-md">
@@ -596,7 +595,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="relative w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-6  dark:border-slate-800 dark:bg-[#0B0F17] overflow-hidden transition-colors"
+              className="relative w-full max-w-lg rounded-3xl border border-[var(--leap-border)] bg-[var(--leap-elevated)] p-6 shadow-[var(--leap-shadow)] backdrop-blur-2xl overflow-hidden transition-colors"
             >
               
               {/* Close Button */}
@@ -661,7 +660,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="aadhira@leapstart.gmail.com"
-                        className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-4 text-xs font-medium text-slate-900 outline-none focus:border-orange-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
+                        className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-4 text-xs font-medium text-slate-900 outline-none focus:border-[#007aff] dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
                       />
                     </div>
                   </div>
@@ -678,7 +677,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
                           setErrorMsg(null);
                           setSuccessMsg(null);
                         }}
-                        className="text-[10px] font-bold text-orange-600 hover:underline dark:text-orange-400 cursor-pointer"
+                        className="text-[10px] font-bold text-[#007aff] hover:underline dark:text-[#0a84ff] cursor-pointer"
                       >
                         Forgot Password?
                       </button>
@@ -694,7 +693,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="••••••••"
-                        className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-10 text-xs text-slate-900 outline-none focus:border-orange-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
+                        className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-10 text-xs text-slate-900 outline-none focus:border-[#007aff] dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
                       />
                       <button
                         type="button"
@@ -710,10 +709,10 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
                     id="btn-login-submit-modal"
                     type="submit"
                     disabled={loading}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2E1065] py-3.5 text-xs font-extrabold uppercase tracking-wider text-white hover:bg-indigo-950 cursor-pointer  disabled:opacity-50 dark:bg-orange-600 dark:hover:bg-zinc-800 dark:hover:bg-white transition-colors"
+                    className="apple-primary flex w-full items-center justify-center gap-2 py-3.5 text-xs font-extrabold uppercase tracking-wider cursor-pointer disabled:opacity-50 transition-colors"
                   >
                     {loading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
-                    <span>Portal Authentication</span>
+                <span>Sign in</span>
                   </button>
                 </form>
               )}
@@ -722,7 +721,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
               {viewState === "forgot" && (
                 <form onSubmit={handleForgotPasswordSubmit} className="space-y-4">
                   <p className="text-[11px] text-gray-500 dark:text-slate-400 leading-relaxed">
-                    Provide your LeapStart email, and our security system will generate an OTP code, intercepted in the simulation outbox for fast resetting.
+                    Provide your LeapStart email and the app will generate a local reset code for this demo workspace.
                   </p>
 
                   <div className="space-y-1">
@@ -740,7 +739,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="aadhira@leapstart.gmail.com"
-                        className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-4 text-xs text-slate-900 outline-none focus:border-orange-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
+                        className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-4 text-xs text-slate-900 outline-none focus:border-[#007aff] dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
                       />
                     </div>
                   </div>
@@ -760,7 +759,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
                     <button
                       type="submit"
                       disabled={loading}
-                      className="flex-2 flex items-center justify-center gap-2 rounded-lg bg-zinc-950 dark:bg-zinc-100 dark:text-zinc-950 py-3 text-xs font-semibold text-white hover:bg-zinc-800 dark:hover:bg-white cursor-pointer transition-colors"
+                      className="apple-primary flex-2 flex items-center justify-center gap-2 py-3 text-xs font-semibold cursor-pointer transition-colors"
                     >
                       {loading ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
                       <span>Send reset code</span>
@@ -798,7 +797,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-xs text-slate-900 outline-none focus:border-orange-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
+                      className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-xs text-slate-900 outline-none focus:border-[#007aff] dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
                     />
                   </div>
 
@@ -817,7 +816,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
                     <button
                       type="submit"
                       disabled={loading}
-                      className="flex-2 flex items-center justify-center gap-2 rounded-lg bg-zinc-950 dark:bg-zinc-100 dark:text-zinc-950 py-3 text-xs font-semibold text-white hover:bg-zinc-800 dark:hover:bg-white cursor-pointer"
+                      className="apple-primary flex-2 flex items-center justify-center gap-2 py-3 text-xs font-semibold cursor-pointer"
                     >
                       {loading ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <KeyRound className="h-3.5 w-3.5" />}
                       <span>Save Password</span>
@@ -855,25 +854,25 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
                   <div className="grid grid-cols-2 gap-2 text-center">
                     <button
                       onClick={() => handleQuickDemoFill("student")}
-                      className="rounded-lg border border-gray-200 bg-white p-1.5 text-[11px] font-medium text-slate-800 hover:bg-orange-50 hover:border-orange-400/30 transition-colors cursor-pointer dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+                      className="rounded-lg border border-gray-200 bg-white p-1.5 text-[11px] font-medium text-slate-800 hover:bg-[#e8f2ff] hover:border-[#007aff]/35 transition-colors cursor-pointer dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
                     >
                       🎓 Student Demo
                     </button>
                     <button
                       onClick={() => handleQuickDemoFill("mentor")}
-                      className="rounded-lg border border-gray-200 bg-white p-1.5 text-[11px] font-medium text-slate-800 hover:bg-orange-50 hover:border-orange-400/30 transition-colors cursor-pointer dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+                      className="rounded-lg border border-gray-200 bg-white p-1.5 text-[11px] font-medium text-slate-800 hover:bg-[#e8f2ff] hover:border-[#007aff]/35 transition-colors cursor-pointer dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
                     >
                       🏫 Mentor Demo
                     </button>
                     <button
                       onClick={() => handleQuickDemoFill("hr")}
-                      className="rounded-lg border border-gray-200 bg-white p-1.5 text-[11px] font-medium text-slate-800 hover:bg-orange-50 hover:border-orange-400/30 transition-colors cursor-pointer dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+                      className="rounded-lg border border-gray-200 bg-white p-1.5 text-[11px] font-medium text-slate-800 hover:bg-[#e8f2ff] hover:border-[#007aff]/35 transition-colors cursor-pointer dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
                     >
                       📁 HR Coordinator
                     </button>
                     <button
                       onClick={() => handleQuickDemoFill("founder")}
-                      className="rounded-lg border border-gray-200 bg-white p-1.5 text-[11px] font-medium text-slate-800 hover:bg-orange-50 hover:border-orange-400/30 transition-colors cursor-pointer dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+                      className="rounded-lg border border-gray-200 bg-white p-1.5 text-[11px] font-medium text-slate-800 hover:bg-[#e8f2ff] hover:border-[#007aff]/35 transition-colors cursor-pointer dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
                     >
                       ⚡ Founder Demo
                     </button>

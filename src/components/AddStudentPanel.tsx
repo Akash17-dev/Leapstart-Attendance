@@ -61,19 +61,19 @@ export default function AddStudentPanel({ compact = false, onStudentAdded }: Add
 
   return (
     <section className="premium-panel overflow-hidden">
-      <div className="flex items-center justify-between gap-4 border-b border-[#e6e8ee] px-4 py-3 dark:border-zinc-800">
+      <div className="flex items-center justify-between gap-4 border-b border-[var(--leap-border)] px-4 py-3">
         <div className="min-w-0">
-          <h3 className="font-display text-sm font-semibold text-zinc-950 dark:text-zinc-50">
+          <h3 className="font-display text-sm font-semibold text-[#1d1d1f] dark:text-[#f5f5f7]">
             Add Student
           </h3>
-          <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+          <p className="mt-0.5 text-xs text-[#6e6e73] dark:text-[#a1a1a6]">
             Create a live student account and attendance record.
           </p>
         </div>
         <button
           type="button"
           onClick={() => setOpen((current) => !current)}
-          className="leap-brand-focus inline-flex items-center gap-2 rounded-lg bg-zinc-950 px-3 py-2 text-xs font-medium text-white transition hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-white"
+          className="leap-brand-focus apple-primary inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold transition"
         >
           {open ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
           {open ? "Close" : "New Student"}
@@ -172,7 +172,7 @@ export default function AddStudentPanel({ compact = false, onStudentAdded }: Add
           <button
             type="submit"
             disabled={saving}
-            className="leap-brand-focus inline-flex items-center justify-center gap-2 rounded-lg bg-zinc-950 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:opacity-60 dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-white md:col-span-2"
+            className="leap-brand-focus apple-primary inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold transition disabled:opacity-60 md:col-span-2"
           >
             <UserPlus className="h-4 w-4" />
             {saving ? "Adding student..." : "Add student"}

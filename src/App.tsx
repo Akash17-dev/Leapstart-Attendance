@@ -124,7 +124,7 @@ export default function App() {
         </div>
       ) : (
         /* CASE B: COHESIVE SYSTEM DASHBOARD */
-        <div className="flex h-screen overflow-hidden bg-[#f7f8fa] text-slate-800 transition-colors duration-300 dark:bg-[#0a0a0b] dark:text-zinc-100">
+        <div className="flex h-screen overflow-hidden bg-[var(--leap-page)] text-[#1d1d1f] transition-colors duration-300 dark:bg-black dark:text-[#f5f5f7]">
           {/* Persistent Navigation sidebar */}
           <Sidebar
             user={currentUser}
@@ -138,19 +138,19 @@ export default function App() {
           {/* Routing Center */}
           <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
             {/* Top Minimal Action header bar */}
-            <header className="h-14 shrink-0 border-b border-[#e6e8ee] bg-white flex items-center justify-between px-6 dark:bg-[#111113] dark:border-zinc-800">
-              <span className="text-xs text-zinc-500 font-medium dark:text-zinc-400">
+            <header className="mx-4 mt-4 h-14 shrink-0 rounded-2xl border border-[var(--leap-border)] bg-[var(--leap-elevated)] px-5 flex items-center justify-between shadow-[var(--leap-shadow)] backdrop-blur-2xl">
+              <span className="text-xs font-semibold text-[#6e6e73] dark:text-[#a1a1a6]">
                 {getScreenDisplayName()} · {currentUser.role}
               </span>
-              <div className="flex items-center gap-3 text-xs text-zinc-500 font-medium dark:text-zinc-400">
+              <div className="flex items-center gap-3 text-xs font-medium text-[#6e6e73] dark:text-[#a1a1a6]">
                 <div className="hidden items-center gap-2 sm:flex">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                  <span className="h-2 w-2 rounded-full bg-[#34c759] shadow-[0_0_0_3px_rgba(52,199,89,0.14)]"></span>
                   <span>{new Date().toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</span>
                 </div>
                 <button
                   type="button"
                   onClick={toggleTheme}
-                  className="leap-brand-focus rounded-lg border border-[#d9dde5] bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:border-zinc-400 dark:border-zinc-800 dark:bg-[#0a0a0b] dark:text-zinc-300 dark:hover:border-zinc-600"
+                  className="leap-brand-focus apple-secondary px-3 py-1.5 text-xs font-semibold transition hover:border-[#007aff]/40"
                 >
                   {darkEnabled ? "Light" : "Dark"}
                 </button>

@@ -124,7 +124,7 @@ export default function AdminDashboard({ user, currentTab }: AdminDashboardProps
             Review attendance, manage people, and monitor access controls.
           </p>
         </div>
-        <div className="flex items-center gap-2 rounded-xl bg-orange-100/50 px-3.5 py-1.5 dark:bg-orange-950/20 text-orange-700 dark:text-orange-400 border border-orange-500/10">
+        <div className="flex items-center gap-2 rounded-xl bg-[#e8f2ff]/80 px-3.5 py-1.5 dark:bg-[#0a84ff]/14 text-[#0066cc] dark:text-[#0a84ff] border border-[#007aff]/12">
           <Database className="h-4 w-4" />
           <span className="font-mono text-xs font-semibold">Admin tools</span>
         </div>
@@ -143,7 +143,7 @@ export default function AdminDashboard({ user, currentTab }: AdminDashboardProps
             </div>
             <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 ">
               <span className="text-[10px] uppercase font-bold tracking-wider text-gray-400">Student Builders</span>
-              <div className="text-2xl font-bold font-mono text-orange-500 mt-1">{studentCount}</div>
+              <div className="text-2xl font-bold font-mono text-[#007aff] mt-1">{studentCount}</div>
             </div>
             <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 ">
               <span className="text-[10px] uppercase font-bold tracking-wider text-gray-400">Instructors / HR</span>
@@ -151,7 +151,7 @@ export default function AdminDashboard({ user, currentTab }: AdminDashboardProps
             </div>
             <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 ">
               <span className="text-[10px] uppercase font-bold tracking-wider text-gray-400">Checkin Rate Today</span>
-              <div className="text-2xl font-bold font-mono text-amber-500 mt-1">{activePercentToday.toFixed(1)}%</div>
+              <div className="text-2xl font-bold font-mono text-[#ff9f0a] mt-1">{activePercentToday.toFixed(1)}%</div>
             </div>
           </div>
 
@@ -181,8 +181,8 @@ export default function AdminDashboard({ user, currentTab }: AdminDashboardProps
                 </div>
 
                 <div className="flex-1 flex flex-col items-center justify-end h-full z-10 space-y-2">
-                  <div className="text-[10px] font-bold font-mono text-orange-500">95%</div>
-                  <div className="w-12 bg-orange-500 rounded-t-lg h-[92%]"></div>
+                  <div className="text-[10px] font-bold font-mono text-[#007aff]">95%</div>
+                  <div className="w-12 bg-[#007aff] rounded-t-lg h-[92%]"></div>
                   <span className="text-[10px] text-gray-400 font-bold font-mono">FullStack</span>
                 </div>
 
@@ -193,7 +193,7 @@ export default function AdminDashboard({ user, currentTab }: AdminDashboardProps
                 </div>
 
                 <div className="flex-1 flex flex-col items-center justify-end h-full z-10 space-y-2">
-                  <div className="text-[10px] font-bold font-mono text-indigo-500">89%</div>
+                  <div className="text-[10px] font-bold font-mono text-[#5856d6]">89%</div>
                   <div className="w-12 bg-blue-500 rounded-t-lg h-[75%]"></div>
                   <span className="text-[10px] text-gray-400 font-bold font-mono">Linux CLI</span>
                 </div>
@@ -218,13 +218,13 @@ export default function AdminDashboard({ user, currentTab }: AdminDashboardProps
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="h-2 w-2 rounded-full bg-orange-500"></div>
+                    <div className="h-2 w-2 rounded-full bg-[#007aff]"></div>
                     <span className="text-xs text-gray-600 dark:text-slate-300">
                       <strong>1 Pending Leave decision active</strong>
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="h-2 w-2 rounded-full bg-indigo-500"></div>
+                    <div className="h-2 w-2 rounded-full bg-[#5856d6]"></div>
                     <span className="text-xs text-gray-600 dark:text-slate-300">
                       <strong>Access controls active</strong>
                     </span>
@@ -266,7 +266,7 @@ export default function AdminDashboard({ user, currentTab }: AdminDashboardProps
                   placeholder="Filter members..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-lg border border-gray-200 bg-white py-1.5 pl-8 pr-3 text-xs outline-none focus:border-orange-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
+                  className="w-full rounded-lg border border-gray-200 bg-white py-1.5 pl-8 pr-3 text-xs outline-none focus:border-[#007aff] dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
                 />
               </div>
             </div>
@@ -281,7 +281,7 @@ export default function AdminDashboard({ user, currentTab }: AdminDashboardProps
                     onClick={() => setSelectedUser(u)}
                     className={`flex items-center gap-3 w-full px-4 py-2 text-left cursor-pointer transition-colors ${
                       isSelected
-                        ? "bg-orange-50/70 border-r-3 border-orange-500 dark:bg-slate-800"
+                        ? "bg-[#e8f2ff]/82 border-r-3 border-[#007aff] dark:bg-slate-800"
                         : "hover:bg-gray-50 dark:hover:bg-slate-950/60"
                     }`}
                   >
@@ -289,7 +289,7 @@ export default function AdminDashboard({ user, currentTab }: AdminDashboardProps
                       src={u.pfpUrl}
                       alt={u.name}
                       referrerPolicy="no-referrer"
-                      className="h-8.5 w-8.5 rounded-lg bg-orange-100 border border-orange-500/10 shrink-0"
+                      className="h-8.5 w-8.5 rounded-lg bg-[#e8f2ff] border border-[#007aff]/12 shrink-0"
                     />
                     <div className="truncate">
                       <span className="font-sans text-xs font-semibold text-slate-800 dark:text-slate-100 block">
@@ -312,13 +312,13 @@ export default function AdminDashboard({ user, currentTab }: AdminDashboardProps
                     src={selectedUser.pfpUrl}
                     alt={selectedUser.name}
                     referrerPolicy="no-referrer"
-                    className="h-16 w-16 rounded-xl bg-orange-100 border border-orange-500/15"
+                    className="h-16 w-16 rounded-xl bg-[#e8f2ff] border border-[#007aff]/14"
                   />
                   <div className="space-y-1">
                     <h3 className="font-display text-base font-bold text-slate-900 dark:text-white">
                       {selectedUser.name}
                     </h3>
-                    <p className="text-xs text-gray-500 dark:text-slate-400 capitalize bg-orange-50 px-2 py-0.5 rounded text-orange-700 font-bold max-w-fit dark:bg-orange-950/20 dark:text-orange-400 font-mono text-[9px] tracking-wider uppercase">
+                    <p className="text-xs text-gray-500 dark:text-slate-400 capitalize bg-[#e8f2ff] px-2 py-0.5 rounded text-[#0066cc] font-bold max-w-fit dark:bg-[#0a84ff]/14 dark:text-[#0a84ff] font-mono text-[9px] tracking-wider uppercase">
                       {selectedUser.role} Profile
                     </p>
                     <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">{selectedUser.bio}</p>
@@ -332,7 +332,7 @@ export default function AdminDashboard({ user, currentTab }: AdminDashboardProps
                 {/* Skills chips */}
                 <div className="space-y-2 border-t border-gray-100 dark:border-slate-800 pt-4">
                   <h4 className="text-xs font-bold uppercase tracking-widest text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                    <Compass className="h-4 w-4 text-orange-500" />
+                    <Compass className="h-4 w-4 text-[#007aff]" />
                     <span>Skills Spec Logs</span>
                   </h4>
                   <div className="flex flex-wrap gap-1.5">
@@ -369,7 +369,7 @@ export default function AdminDashboard({ user, currentTab }: AdminDashboardProps
                           {proj.tags.map((tg) => (
                             <span
                               key={tg}
-                              className="rounded bg-orange-50 text-[9px] font-semibold text-orange-700 dark:bg-orange-950/15 dark:text-orange-400 px-1.5 py-0.5 font-mono"
+                              className="rounded bg-[#e8f2ff] text-[9px] font-semibold text-[#0066cc] dark:bg-[#0a84ff]/12 dark:text-[#0a84ff] px-1.5 py-0.5 font-mono"
                             >
                               {tg}
                             </span>
@@ -431,7 +431,7 @@ export default function AdminDashboard({ user, currentTab }: AdminDashboardProps
                                 ? "bg-emerald-50 text-[#10B981]"
                                 : lv.status === "rejected"
                                 ? "bg-rose-50 text-rose-600"
-                                : "bg-amber-50 text-amber-600"
+                                : "bg-amber-50 text-[#ff9f0a]"
                             }`}
                           >
                             {lv.status}
@@ -464,7 +464,7 @@ export default function AdminDashboard({ user, currentTab }: AdminDashboardProps
           <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900  flex flex-col justify-between">
             <div>
               <h3 className="font-display text-sm font-semibold text-slate-900 dark:text-gray-100 uppercase tracking-widest mb-4 flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5 text-orange-500" />
+                <ShieldCheck className="h-5 w-5 text-[#007aff]" />
                 <span>Access Audit</span>
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal">
@@ -484,15 +484,15 @@ export default function AdminDashboard({ user, currentTab }: AdminDashboardProps
                   <button
                     id="btn-admin-security-test"
                     onClick={handleTestBypassSecurity}
-                    className="rounded-lg bg-zinc-950 dark:bg-zinc-100 dark:text-zinc-950 px-5 py-2.5 text-xs font-semibold text-white hover:bg-zinc-800 dark:hover:bg-white cursor-pointer transition-colors border border-transparent hover:border-orange-200"
+                    className="apple-primary px-5 py-2.5 text-xs font-semibold cursor-pointer transition-colors"
                   >
                     Run access check
                   </button>
                 )}
 
                 {bypassStatus === "testing" && (
-                  <div className="flex items-center justify-center gap-2 text-xs font-medium text-amber-600 font-mono py-2 py-1.5">
-                    <RefreshCw className="h-4.5 w-4.5 animate-spin text-orange-500" />
+                  <div className="flex items-center justify-center gap-2 text-xs font-medium text-[#ff9f0a] font-mono py-2 py-1.5">
+                    <RefreshCw className="h-4.5 w-4.5 animate-spin text-[#007aff]" />
                     <span>QUERYING /api/messages...</span>
                   </div>
                 )}
@@ -529,7 +529,7 @@ export default function AdminDashboard({ user, currentTab }: AdminDashboardProps
           {/* Access policy details */}
           <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900  space-y-5">
             <h3 className="font-display text-sm font-semibold text-slate-900 dark:text-gray-100 uppercase tracking-widest flex items-center gap-1.5">
-              <AlertOctagon className="h-5 w-5 text-orange-500" />
+              <AlertOctagon className="h-5 w-5 text-[#007aff]" />
               <span>Access Policy</span>
             </h3>
             <p className="text-xs text-gray-500 dark:text-slate-400 leading-relaxed">

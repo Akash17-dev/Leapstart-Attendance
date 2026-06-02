@@ -194,7 +194,7 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
             Manage attendance, student profiles, and leave approvals.
           </p>
         </div>
-        <div className="flex items-center gap-2 rounded-xl bg-orange-100/50 px-3.5 py-1.5 dark:bg-orange-950/20 text-orange-700 dark:text-orange-400 border border-orange-500/10">
+        <div className="flex items-center gap-2 rounded-xl bg-[#e8f2ff]/80 px-3.5 py-1.5 dark:bg-[#0a84ff]/14 text-[#0066cc] dark:text-[#0a84ff] border border-[#007aff]/12">
           <Layers className="h-4 w-4" />
           <span className="font-mono text-xs font-semibold">{user.specialty || "Instructor Faculty"}</span>
         </div>
@@ -220,7 +220,7 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
                 placeholder="Search students by name or skill..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 bg-white py-2 pl-10 pr-4 text-xs text-gray-900 outline-none focus:border-orange-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
+                className="w-full rounded-xl border border-gray-200 bg-white py-2 pl-10 pr-4 text-xs text-gray-900 outline-none focus:border-[#007aff] dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
               />
             </div>
 
@@ -232,7 +232,7 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
                 type="date"
                 value={attendanceDate}
                 onChange={(e) => setAttendanceDate(e.target.value)}
-                className="rounded-xl border border-gray-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-gray-800 outline-none focus:border-orange-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
+                className="rounded-xl border border-gray-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-gray-800 outline-none focus:border-[#007aff] dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
               />
             </div>
           </div>
@@ -261,7 +261,7 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
                               src={std.pfpUrl}
                               alt={std.name}
                               referrerPolicy="no-referrer"
-                              className="h-8.5 w-8.5 rounded-lg bg-orange-100 border border-orange-500/10 shrink-0"
+                              className="h-8.5 w-8.5 rounded-lg bg-[#e8f2ff] border border-[#007aff]/12 shrink-0"
                             />
                             <div>
                               <span className="font-sans text-xs font-semibold text-slate-900 dark:text-slate-100 block">
@@ -286,7 +286,7 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
                                 : status === "absent"
                                 ? "bg-rose-50 text-rose-600"
                                 : status === "leave"
-                                ? "bg-amber-50 text-amber-600"
+                                ? "bg-amber-50 text-[#ff9f0a]"
                                 : "bg-gray-100 text-gray-400 dark:bg-slate-800"
                             }`}
                           >
@@ -337,7 +337,7 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
           <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900  flex flex-col justify-between">
             <div>
               <h3 className="font-display text-sm font-semibold text-slate-900 dark:text-gray-100 uppercase tracking-wider mb-4 flex items-center gap-2">
-                <Clock className="h-5 w-5 text-orange-500" />
+                <Clock className="h-5 w-5 text-[#007aff]" />
                 <span>Mentor Check-in</span>
               </h3>
               <p className="text-xs text-gray-500 dark:text-slate-400 leading-normal">
@@ -363,7 +363,7 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
                       id="btn-mentor-checkin"
                       onClick={handleStaffCheckin}
                       disabled={staffLoading}
-                      className="rounded-lg bg-zinc-950 dark:bg-zinc-100 dark:text-zinc-950 px-5 py-2.5 text-xs font-semibold text-white cursor-pointer hover:bg-zinc-800 dark:hover:bg-white transition-colors"
+                      className="apple-primary px-5 py-2.5 text-xs font-semibold cursor-pointer transition-colors"
                     >
                       {staffLoading ? "Logging..." : "Log My Lesson Duty"}
                     </button>
@@ -372,8 +372,8 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
               </div>
             </div>
 
-            <div className="rounded-xl bg-orange-50/40 border border-orange-100/50 dark:bg-slate-950/20 dark:border-slate-800 p-4 shrink-0 flex items-start gap-3">
-              <FileCheck2 className="h-5 w-5 text-orange-500 shrink-0" />
+            <div className="rounded-xl bg-[#e8f2ff]/60 border border-[#007aff]/12 dark:bg-slate-950/20 dark:border-slate-800 p-4 shrink-0 flex items-start gap-3">
+              <FileCheck2 className="h-5 w-5 text-[#007aff] shrink-0" />
               <div>
                 <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">Lesson Guideline Audit</h4>
                 <p className="text-[10px] text-gray-400 leading-normal mt-0.5">
@@ -454,7 +454,7 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
                           value={leaveRemarks}
                           onChange={(e) => setLeaveRemarks(e.target.value)}
                           placeholder="e.g. Good luck with the Hackathon presentation! Ensure backlog check-ins are logged."
-                          className="w-full rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-900 outline-none focus:border-orange-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100"
+                          className="w-full rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-900 outline-none focus:border-[#007aff] dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100"
                         />
                         <div className="flex gap-2">
                           <button
@@ -487,7 +487,7 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
                           setActionLeaveId(lv.id);
                           setLeaveRemarks("");
                         }}
-                        className="rounded-lg border border-orange-500 text-orange-600 px-3.5 py-1.5 text-xs font-semibold hover:bg-orange-50 hover:text-orange-700 cursor-pointer dark:text-orange-400 dark:border-orange-500 dark:hover:bg-slate-950/40 transition-colors"
+                        className="rounded-lg border border-[#007aff] text-[#007aff] px-3.5 py-1.5 text-xs font-semibold hover:bg-[#e8f2ff] hover:text-[#007aff] cursor-pointer dark:text-[#0a84ff] dark:border-[#007aff] dark:hover:bg-slate-950/40 transition-colors"
                       >
                         Review Request
                       </button>
@@ -526,7 +526,7 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
                     onClick={() => setSelectedProfileStd(std)}
                     className={`flex items-center gap-3 w-full px-4 py-2.5 text-left cursor-pointer transition-colors ${
                       isSelected
-                        ? "bg-orange-50/70 border-r-3 border-orange-500 dark:bg-slate-800"
+                        ? "bg-[#e8f2ff]/82 border-r-3 border-[#007aff] dark:bg-slate-800"
                         : "hover:bg-gray-50 dark:hover:bg-slate-950/60"
                     }`}
                   >
@@ -534,13 +534,13 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
                       src={std.pfpUrl}
                       alt={std.name}
                       referrerPolicy="no-referrer"
-                      className="h-8.5 w-8.5 rounded-lg bg-orange-100 border border-orange-500/10 shrink-0"
+                      className="h-8.5 w-8.5 rounded-lg bg-[#e8f2ff] border border-[#007aff]/12 shrink-0"
                     />
                     <div className="truncate">
                       <span className="font-sans text-xs font-semibold text-slate-900 dark:text-slate-100 block truncate">
                         {std.name}
                       </span>
-                      <span className="text-[10px] text-orange-600 block mt-0.5 truncate dark:text-orange-400 font-mono">
+                      <span className="text-[10px] text-[#007aff] block mt-0.5 truncate dark:text-[#0a84ff] font-mono">
                         View LinkedIn specs
                       </span>
                     </div>
@@ -560,7 +560,7 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
                     src={selectedProfileStd.pfpUrl}
                     alt={selectedProfileStd.name}
                     referrerPolicy="no-referrer"
-                    className="h-16 w-16 rounded-xl bg-orange-100 border border-orange-500/15"
+                    className="h-16 w-16 rounded-xl bg-[#e8f2ff] border border-[#007aff]/14"
                   />
                   <div className="space-y-1">
                     <h3 className="font-display text-base font-bold text-slate-900 dark:text-white">
@@ -582,7 +582,7 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
                 {/* Skills Section */}
                 <div className="space-y-2 border-t border-gray-100 dark:border-slate-800 pt-4">
                   <h4 className="text-xs font-bold uppercase tracking-widest text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                    <Compass className="h-4 w-4 text-orange-500" />
+                    <Compass className="h-4 w-4 text-[#007aff]" />
                     <span>Skills</span>
                   </h4>
                   <div className="flex flex-wrap gap-1.5">
@@ -610,7 +610,7 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
                         key={idx}
                         className="rounded-xl border border-gray-100 dark:border-slate-800 p-4 bg-gray-50/50 dark:bg-slate-950/20 space-y-2"
                       >
-                        <h5 className="text-xs font-bold text-slate-900 dark:text-slate-200 hover:text-orange-500 transition-colors flex items-center gap-1">
+                        <h5 className="text-xs font-bold text-slate-900 dark:text-slate-200 hover:text-[#007aff] transition-colors flex items-center gap-1">
                           <span>{proj.title}</span>
                         </h5>
                         <p className="text-[11px] text-gray-500 dark:text-slate-400 leading-normal">{proj.description}</p>
@@ -618,7 +618,7 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
                           {proj.tags.map((tg) => (
                             <span
                               key={tg}
-                              className="rounded bg-orange-50 text-[9px] font-semibold text-orange-700 dark:bg-orange-950/15 dark:text-orange-400 px-1.5 py-0.5"
+                              className="rounded bg-[#e8f2ff] text-[9px] font-semibold text-[#0066cc] dark:bg-[#0a84ff]/12 dark:text-[#0a84ff] px-1.5 py-0.5"
                             >
                               {tg}
                             </span>

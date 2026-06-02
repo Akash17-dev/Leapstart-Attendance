@@ -72,9 +72,9 @@ export default function Sidebar({
   const logoSrc = theme === "dark" ? "https://leapstart.in/icons/logo-whitee.webp" : "https://leapstart.in/icons/logo.webp";
 
   return (
-    <aside className="no-scrollbar flex h-screen w-64 shrink-0 flex-col border-r border-[#e6e8ee] bg-white dark:border-zinc-800 dark:bg-[#111113] transition-colors duration-300">
+    <aside className="no-scrollbar flex h-screen w-64 shrink-0 flex-col border-r border-[var(--leap-border)] bg-white/70 shadow-[12px_0_38px_rgba(0,0,0,0.05)] backdrop-blur-2xl dark:bg-[#1c1c1e]/72 dark:shadow-[12px_0_44px_rgba(0,0,0,0.36)] transition-colors duration-300">
       {/* Brand logo container */}
-      <div className="flex h-14 items-center justify-between px-5 border-b border-[#e6e8ee] dark:border-zinc-800">
+      <div className="flex h-16 items-center justify-between px-5 border-b border-[var(--leap-border)]">
         <div className="flex min-w-0 items-center gap-3">
           <img
             src={logoSrc}
@@ -86,19 +86,19 @@ export default function Sidebar({
       </div>
 
       {/* User profile brief container */}
-      <div className="px-3 py-4 border-b border-[#e6e8ee] dark:border-zinc-800">
-        <div className="flex items-center gap-3 rounded-xl border border-[#e6e8ee] bg-[#f7f8fa] p-3 dark:border-zinc-800 dark:bg-[#0a0a0b]">
+      <div className="px-3 py-4 border-b border-[var(--leap-border)]">
+        <div className="flex items-center gap-3 rounded-2xl border border-[var(--leap-border)] bg-white/72 p-3 shadow-[0_10px_26px_rgba(0,0,0,0.04)] backdrop-blur-xl dark:bg-white/8">
           <img
             src={user.pfpUrl}
             alt={user.name}
             referrerPolicy="no-referrer"
-            className="h-10 w-10 rounded-lg bg-orange-100 border border-orange-500/10 shrink-0"
+            className="h-10 w-10 rounded-xl bg-[#e8f2ff] border border-[#007aff]/10 shrink-0"
           />
           <div className="truncate min-w-0">
-            <h4 className="font-sans font-semibold text-xs text-slate-900 dark:text-slate-100 truncate flex items-center gap-1">
+            <h4 className="font-sans font-semibold text-xs text-[#1d1d1f] dark:text-[#f5f5f7] truncate flex items-center gap-1">
               <span>{user.name}</span>
             </h4>
-            <span className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400 capitalize truncate block mt-0.5 max-w-fit">
+            <span className="text-[10px] font-medium text-[#6e6e73] dark:text-[#a1a1a6] capitalize truncate block mt-0.5 max-w-fit">
               {user.specialty || user.role}
             </span>
           </div>
@@ -109,7 +109,7 @@ export default function Sidebar({
           href={user.linkedinUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-2.5 flex items-center justify-center gap-1.5 rounded-lg border border-[#e6e8ee] bg-white py-1.5 text-[10px] font-medium text-zinc-600 hover:border-zinc-300 hover:text-zinc-900 transition-colors cursor-pointer dark:border-zinc-800 dark:bg-[#111113] dark:text-zinc-400 dark:hover:text-zinc-100"
+          className="mt-2.5 flex items-center justify-center gap-1.5 rounded-xl border border-[var(--leap-border)] bg-white/62 py-1.5 text-[10px] font-semibold text-[#6e6e73] hover:border-[#007aff]/30 hover:text-[#007aff] transition-colors cursor-pointer dark:bg-white/6 dark:text-[#a1a1a6]"
         >
           <span>LinkedIn profile</span>
           <ExternalLink className="h-3 w-3" />
@@ -126,13 +126,13 @@ export default function Sidebar({
               key={item.id}
               id={`sidebar-tab-${item.id}`}
               onClick={() => setCurrentTab(item.id)}
-            className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium cursor-pointer tracking-normal transition-colors ${
+            className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold cursor-pointer tracking-normal transition-all ${
                 isActive
-                  ? "bg-zinc-950 text-white dark:bg-zinc-100 dark:text-zinc-950"
-                  : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
+                  ? "bg-[#007aff] text-white shadow-[0_10px_24px_rgba(0,122,255,0.24)]"
+                  : "text-[#6e6e73] hover:bg-white/70 hover:text-[#1d1d1f] dark:text-[#a1a1a6] dark:hover:bg-white/8 dark:hover:text-[#f5f5f7]"
               }`}
             >
-              <Icon className={`h-4 w-4 ${isActive ? "" : "text-zinc-400 dark:text-zinc-500"}`} />
+              <Icon className={`h-4 w-4 ${isActive ? "" : "text-[#8e8e93]"}`} />
               <span>{item.label}</span>
             </button>
           );
@@ -140,11 +140,11 @@ export default function Sidebar({
       </nav>
 
       {/* Footer controls: logout */}
-      <div className="p-3 space-y-2 border-t border-[#e6e8ee] dark:border-zinc-800">
+      <div className="p-3 space-y-2 border-t border-[var(--leap-border)]">
         <button
           type="button"
           onClick={onToggleTheme}
-          className="leap-brand-focus flex w-full items-center gap-3 rounded-lg border border-[#e6e8ee] bg-white px-3 py-2.5 text-sm font-medium text-zinc-600 cursor-pointer hover:border-zinc-300 hover:text-zinc-950 transition-colors dark:border-zinc-800 dark:bg-[#111113] dark:text-zinc-400 dark:hover:text-zinc-100"
+          className="leap-brand-focus apple-secondary flex w-full items-center gap-3 px-3 py-2.5 text-sm font-semibold cursor-pointer hover:border-[#007aff]/30 hover:text-[#007aff]"
         >
           {theme === "dark" ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
           <span>{theme === "dark" ? "Switch to Light" : "Switch to Dark"}</span>
@@ -153,10 +153,10 @@ export default function Sidebar({
         <button
           id="btn-sidebar-logout"
           onClick={onLogout}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-rose-600 cursor-pointer hover:bg-rose-50 transition-colors dark:hover:bg-rose-950/20"
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-[#ff3b30] cursor-pointer hover:bg-[#ff3b30]/8 transition-colors"
         >
           <LogOut className="h-4.5 w-4.5 text-rose-500" />
-          <span>Exit Portal</span>
+          <span>Sign out</span>
         </button>
       </div>
     </aside>

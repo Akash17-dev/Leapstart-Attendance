@@ -1,36 +1,46 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
 :root {
   color-scheme: light;
-  --leap-ink: #111827;
-  --leap-ink: #111827;
-  --leap-orange: #f97316;
-  --leap-amber: #f97316;
-  --leap-green: #059669;
-  --leap-page: #f7f8fa;
-  --leap-surface: #ffffff;
-  --leap-border: #e6e8ee;
+  --leap-ink: #1d1d1f;
+  --leap-orange: #007aff;
+  --leap-amber: #ff9f0a;
+  --leap-green: #34c759;
+  --leap-page: #f5f5f7;
+  --leap-surface: rgba(255, 255, 255, 0.78);
+  --leap-solid-surface: #ffffff;
+  --leap-elevated: rgba(255, 255, 255, 0.92);
+  --leap-border: rgba(60, 60, 67, 0.14);
+  --leap-muted: #6e6e73;
+  --leap-blue: #007aff;
+  --leap-blue-hover: #006be6;
+  --leap-shadow: 0 18px 45px rgba(0, 0, 0, 0.08), 0 1px 0 rgba(255, 255, 255, 0.75) inset;
 }
 
 .dark {
   color-scheme: dark;
-  --leap-ink: #f4f4f5;
-  --leap-ink: #f4f4f5;
-  --leap-orange: #fb923c;
-  --leap-amber: #fb923c;
-  --leap-green: #22c55e;
-  --leap-page: #0a0a0b;
-  --leap-surface: #111113;
-  --leap-border: #27272a;
+  --leap-ink: #f5f5f7;
+  --leap-orange: #0a84ff;
+  --leap-amber: #ffd60a;
+  --leap-green: #30d158;
+  --leap-page: #000000;
+  --leap-surface: rgba(28, 28, 30, 0.72);
+  --leap-solid-surface: #1c1c1e;
+  --leap-elevated: rgba(44, 44, 46, 0.86);
+  --leap-border: rgba(235, 235, 245, 0.16);
+  --leap-muted: #a1a1a6;
+  --leap-blue: #0a84ff;
+  --leap-blue-hover: #3395ff;
+  --leap-shadow: 0 22px 60px rgba(0, 0, 0, 0.46), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
 }
 
 html {
@@ -39,9 +49,14 @@ html {
 
 body {
   margin: 0;
-  background: var(--leap-page);
+  background:
+    radial-gradient(circle at 12% -10%, rgba(0, 122, 255, 0.16), transparent 28rem),
+    radial-gradient(circle at 92% 0%, rgba(52, 199, 89, 0.12), transparent 24rem),
+    var(--leap-page);
   color: var(--leap-ink);
-  text-rendering: geometricPrecision;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 button,
@@ -52,55 +67,63 @@ select {
 }
 
 .leap-brand-focus:focus-visible {
-  outline: 2px solid rgba(249, 115, 22, 0.42);
+  outline: 3px solid color-mix(in srgb, var(--leap-blue) 28%, transparent);
   outline-offset: 3px;
 }
 
 .leap-card {
   background: var(--leap-surface);
   border-color: var(--leap-border);
+  backdrop-filter: blur(28px) saturate(180%);
 }
 
 .leap-gradient-text {
-  color: var(--leap-orange);
+  color: var(--leap-blue);
   background: none;
 }
 
 .leap-grid-bg {
   background-image:
-    linear-gradient(rgba(30, 27, 75, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(30, 27, 75, 0.05) 1px, transparent 1px);
-  background-size: 32px 32px;
+    linear-gradient(rgba(60, 60, 67, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(60, 60, 67, 0.08) 1px, transparent 1px);
+  background-size: 36px 36px;
 }
 
 .dark .leap-grid-bg {
   background-image:
-    linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+    linear-gradient(rgba(235, 235, 245, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(235, 235, 245, 0.08) 1px, transparent 1px);
 }
 
 .dashboard-shell {
   min-height: 100%;
-  background: #f7f8fa;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(0, 122, 255, 0.1), transparent 22rem),
+    radial-gradient(circle at 82% 4%, rgba(255, 159, 10, 0.08), transparent 20rem),
+    var(--leap-page);
 }
 
 .dark .dashboard-shell {
-  background: #0a0a0b;
-  color: #e4e4e7;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(10, 132, 255, 0.18), transparent 24rem),
+    radial-gradient(circle at 82% 4%, rgba(48, 209, 88, 0.1), transparent 22rem),
+    #000000;
+  color: #f5f5f7;
 }
 
 .dashboard-shell > header {
-  border: 1px solid #e6e8ee;
-  border-radius: 14px;
-  padding: 16px 18px;
-  background: #ffffff;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  border: 1px solid var(--leap-border);
+  border-radius: 22px;
+  padding: 18px 20px;
+  background: var(--leap-elevated);
+  box-shadow: var(--leap-shadow);
+  backdrop-filter: blur(28px) saturate(180%);
 }
 
 .dark .dashboard-shell > header {
-  border-color: #27272a;
-  background: #111113;
-  box-shadow: none;
+  border-color: var(--leap-border);
+  background: var(--leap-elevated);
+  box-shadow: var(--leap-shadow);
 }
 
 .dashboard-shell h2,
@@ -112,14 +135,14 @@ select {
 .dark .dashboard-shell h2,
 .dark .dashboard-shell h3,
 .dark .dashboard-shell h4 {
-  color: #f8fafc;
+  color: #f5f5f7;
 }
 
 .dark .dashboard-shell p,
 .dark .dashboard-shell li,
 .dark .dashboard-shell td,
 .dark .dashboard-shell label {
-  color: #cbd5e1;
+  color: #d1d1d6;
 }
 
 .dark .dashboard-shell span {
@@ -128,32 +151,34 @@ select {
 
 .dashboard-shell .rounded-2xl.border,
 .dashboard-shell .rounded-xl.border {
-  border-color: #e6e8ee;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  border-color: var(--leap-border);
+  background-color: var(--leap-surface);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(24px) saturate(180%);
 }
 
 .dark .dashboard-shell .rounded-2xl.border,
 .dark .dashboard-shell .rounded-xl.border {
-  border-color: #27272a;
-  background-color: #111113;
-  box-shadow: none;
+  border-color: var(--leap-border);
+  background-color: var(--leap-surface);
+  box-shadow: 0 18px 52px rgba(0, 0, 0, 0.42);
 }
 
 .dark .dashboard-shell table thead tr {
-  background: #18181b;
+  background: rgba(44, 44, 46, 0.76);
 }
 
 .dark .dashboard-shell table tbody tr:hover {
-  background: #18181b;
+  background: rgba(58, 58, 60, 0.72);
 }
 
 .dark .dashboard-shell input,
 .dark .dashboard-shell textarea,
 .dark .dashboard-shell select {
-  background-color: #0a0a0b;
-  border-color: #27272a;
-  color: #f8fafc;
-  box-shadow: none;
+  background-color: rgba(28, 28, 30, 0.76);
+  border-color: var(--leap-border);
+  color: #f5f5f7;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
 }
 
 .dark .dashboard-shell input::placeholder,
@@ -174,43 +199,45 @@ select {
 .dark .dashboard-shell .bg-gray-50\/50,
 .dark .dashboard-shell .bg-gray-50\/70,
 .dark .dashboard-shell .bg-white {
-  background-color: rgba(15, 23, 42, 0.52);
+  background-color: rgba(28, 28, 30, 0.68);
 }
 
 .premium-panel {
-  border: 1px solid #e6e8ee;
-  border-radius: 14px;
-  background: #ffffff;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  border: 1px solid var(--leap-border);
+  border-radius: 22px;
+  background: var(--leap-elevated);
+  box-shadow: var(--leap-shadow);
+  backdrop-filter: blur(28px) saturate(180%);
 }
 
 .dark .premium-panel {
-  border-color: #27272a;
-  background: #111113;
-  box-shadow: none;
+  border-color: var(--leap-border);
+  background: var(--leap-elevated);
+  box-shadow: var(--leap-shadow);
 }
 
 .premium-input {
   width: 100%;
-  border-radius: 10px;
-  border: 1px solid #d9dde5;
-  background: #ffffff;
-  padding: 0.65rem 0.8rem;
+  border-radius: 12px;
+  border: 1px solid var(--leap-border);
+  background: rgba(255, 255, 255, 0.82);
+  padding: 0.72rem 0.85rem;
   font-size: 0.8rem;
-  color: #0f172a;
+  color: #1d1d1f;
   outline: none;
   transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset;
 }
 
 .premium-input:focus {
-  border-color: rgba(249, 115, 22, 0.78);
-  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.12);
+  border-color: color-mix(in srgb, var(--leap-blue) 58%, var(--leap-border));
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--leap-blue) 16%, transparent);
 }
 
 .dark .premium-input {
-  border-color: #27272a;
-  background: #0a0a0b;
-  color: #f8fafc;
+  border-color: var(--leap-border);
+  background: rgba(28, 28, 30, 0.76);
+  color: #f5f5f7;
 }
 
 .dark .premium-input::placeholder {
@@ -220,11 +247,12 @@ select {
 .premium-kpi {
   position: relative;
   overflow: hidden;
-  border-radius: 14px;
-  border: 1px solid #e6e8ee;
-  background: #ffffff;
+  border-radius: 22px;
+  border: 1px solid var(--leap-border);
+  background: var(--leap-elevated);
   padding: 1rem;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  box-shadow: var(--leap-shadow);
+  backdrop-filter: blur(28px) saturate(180%);
 }
 
 .premium-kpi::after {
@@ -232,9 +260,29 @@ select {
 }
 
 .dark .premium-kpi {
-  border-color: #27272a;
-  background: #111113;
-  box-shadow: none;
+  border-color: var(--leap-border);
+  background: var(--leap-elevated);
+  box-shadow: var(--leap-shadow);
+}
+
+.apple-primary {
+  border: 1px solid color-mix(in srgb, var(--leap-blue) 65%, transparent);
+  border-radius: 12px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--leap-blue) 92%, white), var(--leap-blue));
+  color: #ffffff;
+  box-shadow: 0 12px 26px color-mix(in srgb, var(--leap-blue) 26%, transparent);
+}
+
+.apple-primary:hover {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--leap-blue-hover) 92%, white), var(--leap-blue-hover));
+}
+
+.apple-secondary {
+  border: 1px solid var(--leap-border);
+  border-radius: 12px;
+  background: var(--leap-surface);
+  color: var(--leap-ink);
+  backdrop-filter: blur(20px) saturate(180%);
 }
 
 /* Base custom scrollbar styles to support clean scroll areas */

@@ -1,6 +1,11 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import React, { useEffect, useState } from "react";
-import { Lightbulb, Paperclip, Rocket, UploadCloud } from "lucide-react";
 import { IncubationIdea, UserProfile } from "../types";
+import { MaterialIcon, Button, Input, Panel } from "./DesignSystem";
 
 interface IncubationHubProps {
   user: UserProfile;
@@ -62,121 +67,129 @@ export default function IncubationHub({ user }: IncubationHubProps) {
   return (
     <div className="dashboard-shell flex-1 overflow-y-auto px-6 py-6 font-sans md:px-8">
       <header className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-center">
-        <div>
-          <h2 className="font-display text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+        <div className="text-left">
+          <h2 className="font-display text-2xl font-bold tracking-tight text-[var(--text-primary)]">
             Incubation Hub
           </h2>
-          <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
+          <p className="mt-1 text-xs text-[var(--text-secondary)]">
             A shared place where startup ideas, prototypes, and mentor notes can grow.
           </p>
         </div>
-        <div className="flex items-center gap-2 rounded-xl px-3.5 py-1.5 leap-brand-pill">
-          <Rocket className="h-4 w-4" />
+        <div className="flex items-center gap-2 rounded-xl px-3.5 py-1.5 bg-[#D4AF37]/10 border border-[#D4AF37]/25 text-[#D4AF37]">
+          <MaterialIcon name="rocket_launch" className="text-base" />
           <span className="font-mono text-xs font-semibold">Founder pipeline</span>
         </div>
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
-        <form onSubmit={submitIdea} className="premium-panel p-5">
+        <Panel className="p-5 text-left h-fit">
           <div className="mb-4 flex items-center gap-2">
-            <Lightbulb className="h-5 w-5 text-[var(--leap-brand)]" />
-            <h3 className="font-display text-sm font-bold text-slate-900 dark:text-white">Add startup idea</h3>
+            <MaterialIcon name="lightbulb" className="text-xl text-[var(--leap-brand)]" />
+            <h3 className="font-display text-sm font-bold text-[var(--text-primary)]">Add startup idea</h3>
           </div>
 
-          <div className="space-y-4">
-            <input
+          <form onSubmit={submitIdea} className="space-y-4">
+            <Input
               value={form.title}
               onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
               required
               placeholder="Idea title"
-              className="premium-input"
+              label="Idea title"
             />
-            <textarea
+            
+            <Input
+              isTextArea
+              rows={4}
               value={form.problem}
               onChange={(event) => setForm((current) => ({ ...current, problem: event.target.value }))}
               required
-              rows={4}
               placeholder="What problem are you solving?"
-              className="premium-input resize-none"
+              label="Problem"
             />
+
             <div className="grid gap-3 md:grid-cols-2">
-              <select
-                value={form.stage}
-                onChange={(event) => setForm((current) => ({ ...current, stage: event.target.value as IncubationIdea["stage"] }))}
-                className="premium-input"
-              >
-                {stages.map((stage) => (
-                  <option key={stage} value={stage}>{stage}</option>
-                ))}
-              </select>
-              <input
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">Stage</label>
+                <select
+                  value={form.stage}
+                  onChange={(event) => setForm((current) => ({ ...current, stage: event.target.value as IncubationIdea["stage"] }))}
+                  className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-page)]/50 px-4 py-3 text-xs text-[var(--text-primary)] outline-none focus:border-[#D4AF37] cursor-pointer"
+                >
+                  {stages.map((stage) => (
+                    <option key={stage} value={stage}>{stage}</option>
+                  ))}
+                </select>
+              </div>
+
+              <Input
                 value={form.tags}
                 onChange={(event) => setForm((current) => ({ ...current, tags: event.target.value }))}
                 placeholder="Tags, comma separated"
-                className="premium-input"
+                label="Tags"
               />
             </div>
 
             <div
               onDragOver={(event) => event.preventDefault()}
               onDrop={handleDrop}
-              className="rounded-3xl border border-dashed border-[var(--leap-border)] bg-white/54 p-6 text-center dark:bg-white/6"
+              className="rounded-3xl border border-dashed border-[var(--border-color)] bg-[var(--bg-page)]/30 p-6 text-center"
             >
-              <UploadCloud className="mx-auto h-8 w-8 text-[var(--leap-brand)]" />
-              <p className="mt-2 text-xs font-semibold text-slate-600 dark:text-slate-300">Drop pitch decks, wireframes, or notes here</p>
-              <p className="mt-1 text-[10px] text-slate-400">This local demo stores file names as idea attachments.</p>
+              <MaterialIcon name="upload_file" className="mx-auto text-3xl text-[var(--leap-brand)]" />
+              <p className="mt-2 text-xs font-semibold text-[var(--text-primary)]">Drop pitch decks, wireframes, or notes here</p>
+              <p className="mt-1 text-[10px] text-[var(--text-secondary)]">This local demo stores file names as idea attachments.</p>
               {files.length > 0 && (
                 <div className="mt-3 flex flex-wrap justify-center gap-1.5">
                   {files.map((file) => (
-                    <span key={file} className="rounded-full px-2.5 py-1 text-[10px] font-semibold leap-emerald-pill">{file}</span>
+                    <span key={file} className="rounded-full px-2.5 py-1 text-[10px] font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/25">{file}</span>
                   ))}
                 </div>
               )}
             </div>
-          </div>
 
-          {status && <p className="mt-3 text-xs font-semibold text-slate-500">{status}</p>}
-          <button type="submit" className="apple-primary mt-5 w-full px-4 py-3 text-sm font-bold">
-            Add to incubation hub
-          </button>
-        </form>
+            {status && <p className="text-xs font-semibold text-[var(--text-secondary)]">{status}</p>}
 
-        <section className="space-y-4">
+            <Button type="submit" variant="brand" className="w-full py-3">
+              Add to incubation hub
+            </Button>
+          </form>
+        </Panel>
+
+        <section className="space-y-4 text-left">
           {ideas.map((idea) => (
-            <article key={idea.id} className="premium-panel p-5">
+            <Panel key={idea.id} className="p-5">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <span className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider leap-brand-pill">
+                  <span className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/25">
                     {idea.stage}
                   </span>
-                  <h3 className="mt-3 font-display text-lg font-bold text-slate-950 dark:text-white">{idea.title}</h3>
-                  <p className="mt-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400">{idea.problem}</p>
+                  <h3 className="mt-3 font-display text-lg font-bold text-[var(--text-primary)]">{idea.title}</h3>
+                  <p className="mt-2 text-xs leading-relaxed text-[var(--text-secondary)]">{idea.problem}</p>
                 </div>
-                <span className="text-right text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                <span className="text-right text-[10px] font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
                   {idea.ownerName}<br />{idea.ownerRole}
                 </span>
               </div>
               <div className="mt-4 flex flex-wrap gap-1.5">
                 {idea.tags.map((tag) => (
-                  <span key={tag} className="rounded-lg bg-slate-100 px-2.5 py-1 text-[10px] font-semibold text-slate-600 dark:bg-white/8 dark:text-slate-300">
+                  <span key={tag} className="rounded-lg bg-[var(--bg-page)] px-2.5 py-1 text-[10px] font-semibold text-[var(--text-secondary)] border border-[var(--border-color)]">
                     {tag}
                   </span>
                 ))}
               </div>
               {idea.attachmentNames.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2 border-t border-[var(--leap-border)] pt-4">
+                <div className="mt-4 flex flex-wrap gap-2 border-t border-[var(--border-color)] pt-4">
                   {idea.attachmentNames.map((file) => (
-                    <span key={file} className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold leap-emerald-pill">
-                      <Paperclip className="h-3 w-3" />
+                    <span key={file} className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                      <MaterialIcon name="attach_file" className="text-xs" />
                       {file}
                     </span>
                   ))}
                 </div>
               )}
-            </article>
+            </Panel>
           ))}
           {ideas.length === 0 && (
-            <div className="premium-panel p-10 text-center text-sm text-slate-500">No startup ideas yet. Add the first one.</div>
+            <Panel className="p-10 text-center text-sm text-[var(--text-secondary)]">No startup ideas yet. Add the first one.</Panel>
           )}
         </section>
       </div>

@@ -1,32 +1,20 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import React, { useState } from "react";
-import { 
-  LogIn, 
-  KeyRound, 
-  Mail, 
-  ShieldAlert, 
-  ArrowLeft, 
-  Send, 
-  RefreshCw, 
-  Eye, 
-  EyeOff,
-  Award,
-  BookOpen,
-  Terminal,
-  ChevronRight,
-  Users,
-  CheckCircle2,
-  X,
-  ExternalLink,
-  Star,
-  Menu,
-  HelpCircle,
-  Globe,
-  Sun,
-  Moon
-} from "lucide-react";
 import { UserProfile } from "../types";
 import ProjectShowcase from "./ProjectShowcase";
 import { motion, AnimatePresence } from "motion/react";
+import { 
+  MaterialIcon, 
+  Button, 
+  Input, 
+  Avatar, 
+  Badge, 
+  Panel 
+} from "./DesignSystem";
 
 interface LoginScreenProps {
   onLoginSuccess: (user: UserProfile, token: string) => void;
@@ -48,24 +36,19 @@ const GUEST_USER: UserProfile = {
 
 const LOGO_DARK = "https://leapstart.in/icons/logo.webp";
 const LOGO_LIGHT = "https://leapstart.in/icons/logo-whitee.webp";
-const INDUSTRY_TOOLS = ["Apple", "Amazon", "Meta", "Google", "Microsoft", "LinkedIn", "Netflix", "Adobe"];
-const PROGRAM_HIGHLIGHTS = [
-  { value: "40+", label: "Real apps" },
-  { value: "1:1", label: "Mentoring" },
-  { value: "4 yrs", label: "Career track" },
-  { value: "Live", label: "Postgres ops" }
-];
 
 export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: LoginScreenProps) {
   // Navigation tabs: "home" | "showcase"
   const [activeTab, setActiveTab] = useState<"home" | "showcase">("home");
   
-  // Login flow states inside the portal modal
+  // Login states
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [viewState, setViewState] = useState<"login" | "forgot" | "reset">("login");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -98,7 +81,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
         throw new Error(data.error || "Authentication failed. Secure token rejected.");
       }
 
-      setSuccessMsg("Authorization established! Launching student dashboard...");
+      setSuccessMsg("Authorization established! Launching dashboard...");
       setTimeout(() => {
         setIsLoginModalOpen(false);
         onLoginSuccess(data.user, data.token);
@@ -125,7 +108,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
       const response = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email, phone: phone || undefined })
       });
 
       const data = await response.json();
@@ -133,7 +116,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
         throw new Error(data.error || "Email not mapped to any active academic profile.");
       }
 
-      setSuccessMsg("Reset code generated for local testing.");
+      setSuccessMsg("Twilio SMS verification code dispatched.");
       setSimulatedInbox({
         to: data.simulatedInboxDetails.to,
         otpCode: data.simulatedInboxDetails.otpCode
@@ -170,7 +153,7 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || "Failed to reset. Validate OTP code credentials.");
+        throw new Error(data.error || "Failed to reset. Validate OTP code.");
       }
 
       setSuccessMsg("Security credentials updated! Proceed to log in.");
@@ -202,13 +185,15 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
   };
 
   return (
-    <div className="min-h-screen bg-[var(--leap-page)] text-[#1d1d1f] transition-colors duration-500 dark:bg-black dark:text-[#f5f5f7] font-sans antialiased selection:bg-[#007aff] selection:text-white">
+    <div className="min-h-screen bg-[var(--bg-page)] text-[var(--text-primary)] font-sans antialiased overflow-hidden selection:bg-[#D4AF37] selection:text-black leap-grid-bg relative flex flex-col justify-between transition-colors duration-250">
       
-      {/* Brand header navigation */}
-      <header className="sticky top-0 z-40 w-full border-b border-[var(--leap-border)] bg-white/76 backdrop-blur-2xl dark:bg-[#1c1c1e]/72 transition-colors">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 md:px-8">
+      {/* Background radial highlights */}
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle_at_center,var(--leap-brand-soft)_0%,transparent_70%)] pointer-events-none z-0"></div>
+
+      {/* Top Header navbar */}
+      <header className="sticky top-0 z-40 w-full border-b border-[var(--border-color)] bg-[var(--bg-surface)]/60 backdrop-blur-xl shrink-0">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 sm:px-8">
           
-          {/* Logo block */}
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab("home")}>
             <img
               src={theme === "dark" ? LOGO_LIGHT : LOGO_DARK}
@@ -216,690 +201,501 @@ export default function LoginScreen({ onLoginSuccess, theme, onToggleTheme }: Lo
               className="h-10 w-auto object-contain"
               referrerPolicy="no-referrer"
             />
-            <span className="hidden rounded-full px-2 py-1 text-[8px] font-mono font-bold tracking-widest uppercase sm:block leap-emerald-pill">
-              Attendance Studio
-            </span>
           </div>
 
-          {/* NAV TABS (DESKTOP OR COMPACT) */}
-          <nav className="hidden md:flex items-center gap-6 text-xs font-semibold">
+          <nav className="hidden md:flex items-center gap-8 text-xs font-semibold">
             <button
               onClick={() => setActiveTab("home")}
-              className={`pb-1 border-b-2 transition-colors cursor-pointer ${
-                activeTab === "home" 
-                  ? "border-[var(--leap-brand)] text-slate-900 dark:text-white" 
-                  : "border-transparent text-gray-500 hover:text-slate-900 dark:hover:text-white"
+              className={`pb-1 transition-colors cursor-pointer border-b-2 ${
+                activeTab === "home" ? "border-[var(--leap-brand)] text-[var(--text-primary)]" : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
             >
-              Home
+              System Home
             </button>
             <button
               onClick={() => setActiveTab("showcase")}
-              className={`pb-1 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
-                activeTab === "showcase" 
-                  ? "border-[var(--leap-brand)] text-slate-900 dark:text-white" 
-                  : "border-transparent text-gray-500 hover:text-slate-900 dark:hover:text-white"
+              className={`pb-1 transition-colors cursor-pointer border-b-2 flex items-center gap-1.5 ${
+                activeTab === "showcase" ? "border-[var(--leap-brand)] text-[var(--text-primary)]" : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
             >
-              <span>Student Portfolios</span>
-              <span className="rounded px-1 text-[9px] font-extrabold animate-pulse leap-brand-pill">
-                Live
-              </span>
+              <span>Student Showcase</span>
+              <Badge variant="brand">Active</Badge>
             </button>
-            <a 
-              href="#framework" 
-              onClick={() => { setActiveTab("home"); setTimeout(() => document.getElementById("framework")?.scrollIntoView({ behavior: 'smooth' }), 100); }}
-              className="text-gray-500 hover:text-slate-900 dark:hover:text-white transition-colors"
-            >
-              4-Year Grid
-            </a>
-            <a 
-              href="#faq" 
-              onClick={() => { setActiveTab("home"); setTimeout(() => document.getElementById("faq")?.scrollIntoView({ behavior: 'smooth' }), 100); }}
-              className="text-gray-500 hover:text-slate-900 dark:hover:text-white transition-colors"
-            >
-              FAQs
-            </a>
           </nav>
 
-          {/* ACTION BUTTONS (Portal triggering) */}
           <div className="flex items-center gap-3">
-            <button
-              type="button"
+            <Button
+              variant="secondary"
               onClick={onToggleTheme}
-              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-              className="leap-brand-focus apple-secondary flex h-10 w-10 items-center justify-center rounded-full text-slate-600 transition-colors hover:border-[var(--leap-brand)]/35 hover:text-[var(--leap-brand)] dark:text-slate-300"
-              title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+              className="px-3 py-3 rounded-xl border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              title="Switch Theme Mode"
             >
-              {theme === "dark" ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
-            </button>
+              <MaterialIcon name={theme === "dark" ? "light_mode" : "dark_mode"} className="text-base" />
+            </Button>
             
-            {/* Portal trigger button */}
-            <button
+            <Button
+              variant="brand"
               onClick={() => {
                 setViewState("login");
-                setIsLoginModalOpen(true);
+                const el = document.getElementById("auth-panel-container");
+                if (el) {
+                  el.scrollIntoView({ behavior: "smooth" });
+                }
               }}
-              className="apple-primary flex items-center gap-2 px-4 py-2 text-xs font-semibold cursor-pointer transition-all"
+              className="px-5 py-2.5 text-xs font-bold uppercase tracking-wider"
+              icon="login"
             >
-              <LogIn className="h-3.5 w-3.5" />
-              <span>Student & Staff Portal</span>
-            </button>
+              Workspace Log In
+            </Button>
           </div>
 
         </div>
       </header>
 
-      {/* Mobile tab buttons */}
-      <div className="flex md:hidden border-b border-[var(--leap-border)] bg-white/76 dark:bg-[#1c1c1e]/72 px-4 py-2.5 gap-2.5 backdrop-blur-2xl transition-colors">
-        <button
-          onClick={() => setActiveTab("home")}
-          className={`flex-1 text-center py-2 text-xs font-semibold rounded-xl ${
-            activeTab === "home" 
-              ? "bg-[var(--leap-brand)] text-white" 
-              : "text-gray-500 hover:bg-gray-50 dark:hover:bg-slate-900"
-          }`}
-        >
-          Home
-        </button>
-        <button
-          onClick={() => setActiveTab("showcase")}
-          className={`flex-1 text-center py-2 text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 ${
-            activeTab === "showcase" 
-              ? "bg-[var(--leap-brand)] text-white" 
-              : "text-gray-500 hover:bg-gray-50 dark:hover:bg-slate-900"
-          }`}
-        >
-          <span>Student Portfolios</span>
-          <span className="rounded-full bg-[#e8f2ff] text-[#0066cc] text-[8px] px-1 font-bold animate-ping">●</span>
-        </button>
-      </div>
-
-      {/* Main attendance landing */}
-      {activeTab === "home" && (
-        <div className="pb-24">
-          
-          {/* Hero block */}
-          <section className="relative overflow-hidden leap-grid-bg px-4 py-16 md:py-28">
-            {/* Subtle floating dot pattern wrapper */}
-            <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:24px_24px] opacity-40 dark:bg-[radial-gradient(#334155_1.2px,transparent_1.2px)] pointer-events-none"></div>
-
-            <div className="relative mx-auto max-w-5xl text-center">
-              
-              {/* Badge label */}
-              <div className="mx-auto mb-4 flex items-center gap-2 rounded-full px-4 py-1.5 text-[10px] sm:text-xs font-bold tracking-widest uppercase max-w-fit backdrop-blur-xl leap-brand-pill">
-                <CheckCircle2 className="h-4 w-4" />
-                <span>Admissions Open for Batch 2026</span>
-              </div>
-
-              {/* Title Heading */}
-              <h1 className="mx-auto max-w-5xl font-display text-4xl font-extrabold tracking-normal text-[#1E1B4B] sm:text-6xl md:text-7xl dark:text-white leading-tight">
-                LeapStart attendance, leave, and <span className="leap-gradient-text">student projects</span> in one place
-              </h1>
-
-              {/* Subtitle Description */}
-              <p className="mx-auto mt-6 max-w-3xl text-sm leading-7 text-gray-500 sm:text-lg dark:text-slate-400">
-                A polished operations workspace for LeapStart cohorts, built around experiential learning, industry-style workflows, mentor reviews, and live attendance data.
-              </p>
-
-              {/* Action Buttons inside Hero */}
-              <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <button
-                  onClick={() => setActiveTab("showcase")}
-                  className="apple-primary w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 text-xs font-bold tracking-wider uppercase transition-all cursor-pointer"
-                >
-                  <BookOpen className="h-4.5 w-4.5" />
-                  <span>View student projects</span>
-                </button>
-                <button
-                  onClick={() => setIsLoginModalOpen(true)}
-                  className="apple-secondary w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 text-xs font-bold tracking-wider uppercase transition-all cursor-pointer hover:border-[var(--leap-brand)]/35 hover:text-[var(--leap-brand)]"
-                >
-                  <Users className="h-4.5 w-4.5" />
-                  <span>Open attendance portal</span>
-                </button>
-              </div>
-
-              {/* Stat Brief Section */}
-              <div className="mx-auto mt-14 grid max-w-4xl grid-cols-2 gap-3 border-t border-gray-200/60 pt-10 dark:border-slate-800 md:grid-cols-4">
-                {PROGRAM_HIGHLIGHTS.map((item) => (
-                  <div key={item.label} className="rounded-2xl border border-[var(--leap-border)] bg-white/64 p-4 text-center shadow-[0_12px_28px_rgba(15,23,42,0.05)] backdrop-blur-xl dark:bg-white/8">
-                    <h3 className="font-display text-2xl font-extrabold text-[var(--leap-brand)] md:text-4xl">{item.value}</h3>
-                    <p className="mt-1 text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">{item.label}</p>
-                  </div>
-                ))}
-              </div>
-
-            </div>
-          </section>
-
-          <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 -mt-6">
-            <div className="rounded-3xl border border-[var(--leap-border)] bg-[var(--leap-elevated)] p-5 shadow-[var(--leap-shadow)] backdrop-blur-2xl">
-              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <div>
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[var(--leap-brand)]">Industry Exposure</span>
-                  <h2 className="mt-1 font-display text-lg font-bold text-[#1d1d1f] dark:text-white">Tools and workflows inspired by leading tech teams</h2>
-                </div>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
-                  {INDUSTRY_TOOLS.map((tool) => (
-                    <div key={tool} className="leap-logo-chip rounded-2xl px-3 py-2 text-center text-[11px] font-extrabold text-[#1d1d1f] dark:text-white">
-                      {tool}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* LEAPSTART'S PEDAGOGY SECTION */}
-          <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 mt-12">
-            <div className="text-center mb-10">
-              <span className="text-[11px] tracking-widest font-mono font-bold text-[#007aff] uppercase">THE CORE PLATFORM SHIFT</span>
-              <h2 className="font-display text-2xl sm:text-4xl font-extrabold text-[#1E1B4B] dark:text-white mt-1">
-                LeapStart's Pedagogy for Tech Skill Building
-              </h2>
-            </div>
-
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {[
-                {
-                  title: "Agile Learning Environment",
-                  desc: "Students operate in project pods with practical standups, code reviews, and infrastructure checks.",
-                  icon: Terminal,
-                  color: "border-[#007aff]/20 bg-[#007aff]/5 text-[#007aff] dark:text-[#0a84ff]"
-                },
-                {
-                  title: "Reverse Engineered Curriculum",
-                  desc: "We look at what products enterprise tech giants are actively deploying, then work backward to teach the algorithms and math structures underneath.",
-                  icon: RefreshCw,
-                  color: "border-[#007aff]/20 bg-[#007aff]/5 text-[#007aff] dark:text-[#0a84ff]"
-                },
-                {
-                  title: "One-on-One Mentoring",
-                  desc: "Industry practitioners and tech veterans check your student coding portfolios, grading you directly on code quality, performance matrices, and clean design.",
-                  icon: Users,
-                  color: "border-emerald-500/20 bg-emerald-500/5 text-emerald-650 dark:text-emerald-400"
-                },
-                {
-                  title: "Master by Building Real-World Applications",
-                  desc: "Durable cloud micro-databases, convolutional vision processors, and custom server APIs are constructed and publicly hosted by first-year squads.",
-                  icon: BookOpen,
-                  color: "border-blue-500/20 bg-blue-500/5 text-blue-600 dark:text-blue-400"
-                },
-                {
-                  title: "Internship Driven Learning",
-                  desc: "Academic programs that require constant, validated integration inside physical production lines and digital tech teams throughout your engineering path.",
-                  icon: Globe,
-                  color: "border-amber-500/20 bg-[#ff9f0a]/5 text-amber-650 dark:text-[#ffd60a]"
-                },
-                {
-                  title: "Learn from CEOs & CXOs",
-                  desc: "Get structural insight, tech vector breakdowns, and corporate leadership tutorials delivered directly by tech startup founders and senior executives.",
-                  icon: Award,
-                  color: "border-pink-500/20 bg-pink-500/5 text-pink-600 dark:text-pink-400"
-                }
-              ].map((ped, index) => (
-                <div 
-                  key={index} 
-                  className="rounded-2xl border border-[var(--leap-border)] bg-[var(--leap-surface)] p-6 backdrop-blur-xl transition-colors"
-                >
-                  <div className={`p-3 rounded-xl w-fit ${ped.color}`}>
-                    <ped.icon className="h-5 w-5" />
-                  </div>
-                  <h3 className="font-display font-extrabold text-sm sm:text-base text-slate-900 dark:text-white mt-4">{ped.title}</h3>
-                  <p className="text-xs text-gray-500 dark:text-slate-400 leading-relaxed mt-2.5">{ped.desc}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* THE 4-YEAR FRAMEWORK */}
-          <section id="framework" className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 mt-24">
-            <div className="rounded-2xl bg-slate-900 px-6 py-12 text-white dark:bg-[#090D16] dark:border dark:border-slate-800 md:p-16">
-              <div className="max-w-3xl">
-                <span className="text-[10px] tracking-widest font-mono font-bold text-[#10B981] uppercase">CAREER ACCELERATION TRACK</span>
-                <h2 className="font-display text-2xl sm:text-4xl font-extrabold tracking-tight mt-1">
-                  A Tailored 4-Year Framework To Accelerate Your Career
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-400 mt-4 leading-relaxed">
-                  Every year at LeapStart is custom engineered to transition you from core syntax into high-performance system engineering and paid full-time industry deployments.
-                </p>
-              </div>
-
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mt-12">
-                {[
-                  {
-                    year: "Year 1",
-                    title: "Building a Strong Foundation",
-                    desc: "Mastering fundamental coding paradigms, terminal operations, computer science foundations, and relative path sandboxing structures."
-                  },
-                  {
-                    year: "Year 2",
-                    title: "Mastering Emerging Tech Trends",
-                    desc: "Deep diving into full-stack web architectures, deep learning classifiers, robust relational databases, and data science telemetry."
-                  },
-                  {
-                    year: "Year 3",
-                    title: "Developing Real-Time Applications",
-                    desc: "Authoring high-throughput server backends, autonomous OpenCV machine vision loops, and multi-user communication channels."
-                  },
-                  {
-                    year: "Year 4",
-                    title: "Be Industry-Ready & Future-Driven",
-                    desc: "Securing full-time professional corporate internships while carrying out your final public showcase evaluations under expert reviewers."
-                  }
-                ].map((frame, index) => (
-                  <div key={index} className="rounded-xl bg-white/5 border border-white/10 p-5 hover:bg-white/10 transition-colors">
-                    <span className="text-xs font-mono font-bold text-[#0a84ff] block">{frame.year}</span>
-                    <h3 className="font-display font-bold text-sm text-white mt-1.5 leading-snug">{frame.title}</h3>
-                    <p className="text-[11px] text-zinc-400 mt-2.5 leading-relaxed">{frame.desc}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* FAQS SECTION */}
-          <section id="faq" className="mx-auto max-w-5xl px-4 sm:px-6 md:px-8 mt-24">
-            <div className="text-center mb-10">
-              <span className="text-[11px] tracking-widest font-mono font-bold text-[#007aff] uppercase">HELP CENTER</span>
-              <h2 className="font-display text-2xl sm:text-4xl font-extrabold text-[#1E1B4B] dark:text-white mt-1">
-                Frequently Asked Questions
-              </h2>
-            </div>
-
-            <div className="space-y-4">
-              {[
-                {
-                  q: "What kind of projects will I work on at LeapStart?",
-                  a: "Students build fully responsive full-stack applications, autonomous computer vision inspector loops (like the Autonomous Factory Vision Agent), predictive neural network classification systems, and securely persistent dual-role administrative portals synced with live databases."
-                },
-                {
-                  q: "How does the public feedback critique system function?",
-                  a: "We believe in authentic public accountability. Once a student posts their reverse-engineered tech framework to the showcase feed, the portfolio is open-sourced to everyone. Mentors, corporate visitors, peer students, and guests can cast live rating metrics and log custom text comments."
-                },
-                {
-                  q: "Is there real-time persistence for student check-ins and project submissions?",
-                  a: "Yes. The platform is backed by your local PostgreSQL database, making sure student clock-ins, leave petitions, and portfolio ratings persist cleanly across app restarts."
-                }
-              ].map((faq, idx) => (
-                <div key={idx} className="rounded-2xl border border-[var(--leap-border)] bg-[var(--leap-surface)] p-5 backdrop-blur-xl transition-colors">
-                  <h4 className="font-display font-extrabold text-sm text-[#1E1B4B] dark:text-white flex items-center gap-2">
-                    <span className="text-[#007aff]">Q.</span>
-                    <span>{faq.q}</span>
-                  </h4>
-                  <p className="text-xs text-gray-500 dark:text-slate-400 leading-relaxed mt-2.5 pl-4 border-l border-[#007aff]/20">{faq.a}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Call to action */}
-          <section className="mx-auto max-w-5xl px-4 sm:px-6 md:px-8 mt-24 text-center">
-            <div className="rounded-3xl border border-[var(--leap-border)] bg-[var(--leap-elevated)] p-10 text-[#1d1d1f] shadow-[var(--leap-shadow)] backdrop-blur-2xl dark:text-[#f5f5f7] md:p-14 transition-colors">
-              <h2 className="font-display text-3xl sm:text-4xl font-black tracking-tight leading-none">Run attendance with clarity.</h2>
-              <p className="text-xs sm:text-sm text-[#6e6e73] dark:text-[#a1a1a6] mt-4 max-w-xl mx-auto leading-relaxed">
-                Review student projects, test role permissions, or sign in to manage attendance, leave, and cohort operations.
-              </p>
-              <div className="mt-8 flex flex-wrap justify-center gap-4">
-                <button
-                  onClick={() => setActiveTab("showcase")}
-                  className="apple-primary px-7 py-3 text-xs font-bold tracking-wider uppercase transition-colors cursor-pointer"
-                >
-                  Enter Project Showcase Feed
-                </button>
-                <button
-                  onClick={() => setIsLoginModalOpen(true)}
-                  className="apple-secondary font-bold px-7 py-3 text-xs tracking-wider uppercase transition-colors cursor-pointer hover:border-[#007aff]/35 hover:text-[#007aff]"
-                >
-                  Open admin portal
-                </button>
-              </div>
-            </div>
-          </section>
-
-          {/* Footer */}
-          <footer className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 mt-24 border-t border-gray-200 dark:border-slate-800 pt-8 text-center text-xs text-gray-400 select-none">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
-                <img
-                  src={theme === "dark" ? LOGO_LIGHT : LOGO_DARK}
-                  alt="LeapStart Logo"
-                  className="h-7 w-auto object-contain"
-                  referrerPolicy="no-referrer"
-                />
-                <span className="font-bold text-slate-800 dark:text-white">© 2026</span>
-                <span>• Attendance and student operations platform</span>
-              </div>
-              <div className="flex gap-4">
-                <a href="https://leapstart.in" target="_blank" rel="noopener noreferrer" className="hover:text-[#007aff] transition-colors">Official Website</a>
-                <span className="text-zinc-600">|</span>
-                <span className="text-emerald-500">Local Postgres app</span>
-              </div>
-            </div>
-          </footer>
-
-        </div>
-      )}
-
-      {/* Public student portfolios showcase and ratings feed */}
-      {activeTab === "showcase" && (
-        <div className="mx-auto max-w-5xl pb-24">
-          <div className="bg-emerald-50/45 dark:bg-emerald-950/10 border-b border-slate-200 dark:border-slate-800 py-4 px-6 mb-2 rounded-b-2xl flex items-center justify-between gap-4">
-            <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-bold leading-none flex items-center gap-1">
-              <Globe className="h-3.5 w-3.5 animate-pulse" />
-              <span>PUBLIC MODE - GUEST ACCESS VALIDATED</span>
-            </span>
-            <span className="text-[10px] text-gray-500 dark:text-slate-400">
-              Anyone visitor can submit reviews & star ratings directly below.
-            </span>
-          </div>
-
-          {/* Public projects listing with guest profile context */}
-          <ProjectShowcase user={GUEST_USER} />
-        </div>
-      )}
-
-      {/* Login modal */}
-      <AnimatePresence>
-        {isLoginModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/65 backdrop-blur-md">
+      {/* Main Tab Render */}
+      <main className="flex-1 z-10 w-full max-w-7xl mx-auto px-6 sm:px-8 py-8 md:py-12 overflow-y-auto">
+        {activeTab === "home" ? (
+          <div className="grid gap-8 lg:grid-cols-2 items-stretch min-h-[500px]">
             
-            {/* Modal Box */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="relative w-full max-w-lg rounded-3xl border border-[var(--leap-border)] bg-[var(--leap-elevated)] p-6 shadow-[var(--leap-shadow)] backdrop-blur-2xl overflow-hidden transition-colors"
-            >
+            {/* Left Side: Product messaging + Live Dashboard Preview (50% split) */}
+            <div className="space-y-8 flex flex-col justify-between text-left">
               
-              {/* Close Button */}
-              <button
-                onClick={() => {
-                  setIsLoginModalOpen(false);
-                  setSimulatedInbox(null);
-                  setErrorMsg(null);
-                  setSuccessMsg(null);
-                }}
-                className="absolute top-5 right-5 text-gray-400 hover:text-slate-800 dark:hover:text-white cursor-pointer"
-              >
-                <X className="h-5.5 w-5.5" />
-              </button>
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs font-bold text-[var(--text-secondary)]">
+                  <span className="h-2 w-2 rounded-full bg-[#10B981] animate-pulse"></span>
+                  <span>PostgreSQL Cohort Cluster Synced</span>
+                </div>
 
-              {/* Branding and Subhead */}
-              <div className="mb-6 flex flex-col items-center text-center">
-                <img
-                  src={theme === "dark" ? LOGO_LIGHT : LOGO_DARK}
-                  alt="LeapStart Logo"
-                  className="mb-3 h-12 w-auto object-contain"
-                  referrerPolicy="no-referrer"
-                />
-                <h2 className="font-display text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                  LeapStart Portal
-                </h2>
-                <p className="text-xs text-gray-400 mt-1 max-w-xs">
-                  Enter student credentials or select a test role profile below.
+                <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] text-[var(--text-primary)]">
+                  Attendance. Verification. <span className="gold-gradient-text">Operations.</span>
+                </h1>
+
+                <p className="text-[var(--text-secondary)] text-sm leading-relaxed max-w-2xl">
+                  A high-integrity telemetry check-in, geofence boundary logging, and administrative audit dashboard. Built for experiential student cohorts, mentors reviews, and collaborative secure workspace feeds.
                 </p>
               </div>
 
-              {/* Success / Error Banners */}
-              {errorMsg && (
-                <div className="mb-4 flex items-start gap-2.5 rounded-xl bg-rose-50 p-3.5 text-xs text-rose-700 border border-rose-100 dark:bg-rose-950/20 dark:text-rose-450 dark:border-rose-900/40">
-                  <ShieldAlert className="h-4 w-4 shrink-0 mt-0.5" />
-                  <span>{errorMsg}</span>
+              {/* Live Preview Dashboard (Apple/Linear Style) */}
+              <Panel className="p-6 border-[var(--border-color)] bg-[var(--bg-surface)] space-y-6 shadow-xl">
+                <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+                  <div className="flex items-center gap-2">
+                    <MaterialIcon name="monitoring" className="text-[var(--leap-brand)] text-lg" />
+                    <span className="text-xs font-bold uppercase tracking-wide text-[var(--text-primary)]">Live Operations Feed Preview</span>
+                  </div>
+                  <Badge variant="success">96% Active Presence</Badge>
                 </div>
-              )}
 
-              {successMsg && (
-                <div className="mb-4 flex items-start gap-2.5 rounded-xl bg-emerald-50 p-3.5 text-xs text-emerald-800 border border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/40">
-                  <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
-                  <span>{successMsg}</span>
-                </div>
-              )}
+                <div className="grid gap-6 md:grid-cols-12 items-stretch">
+                  
+                  {/* Left Column: Metrics & Ring */}
+                  <div className="md:col-span-7 space-y-4 flex flex-col justify-between">
+                    <div className="grid gap-3 grid-cols-2">
+                      <div className="p-3 bg-[var(--bg-page)] rounded-xl border border-[var(--border-color)] text-left">
+                        <span className="text-[8px] uppercase font-bold text-[var(--text-secondary)] block">Total Cohort</span>
+                        <span className="text-base font-black font-mono text-[var(--text-primary)] mt-0.5 block">24 Students</span>
+                      </div>
+                      <div className="p-3 bg-[var(--bg-page)] rounded-xl border border-[var(--border-color)] text-left">
+                        <span className="text-[8px] uppercase font-bold text-[var(--text-secondary)] block">GPS Verified</span>
+                        <span className="text-base font-black font-mono text-[#10B981] mt-0.5 block">22 Present</span>
+                      </div>
+                      <div className="p-3 bg-[var(--bg-page)] rounded-xl border border-[var(--border-color)] text-left">
+                        <span className="text-[8px] uppercase font-bold text-[var(--text-secondary)] block">Pending Leaves</span>
+                        <span className="text-base font-black font-mono text-[#F59E0B] mt-0.5 block">1 Request</span>
+                      </div>
+                      <div className="p-3 bg-[var(--bg-page)] rounded-xl border border-[var(--border-color)] text-left">
+                        <span className="text-[8px] uppercase font-bold text-[var(--text-secondary)] block">Verification Audits</span>
+                        <span className="text-base font-black font-mono text-sky-500 mt-0.5 block">100% Valid</span>
+                      </div>
+                    </div>
 
-              {/* VIEW A: SIGN IN FORM */}
-              {viewState === "login" && (
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-extrabold uppercase tracking-wider text-gray-500 dark:text-slate-400">
-                      Academic Email
-                    </label>
-                    <div className="relative">
-                      <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">
-                        <Mail className="h-4 w-4" />
-                      </span>
-                      <input
-                        id="inp-login-email-modal"
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="aadhira@leapstart.gmail.com"
-                        className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-4 text-xs font-medium text-slate-900 outline-none focus:border-[#007aff] dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
-                      />
+                    {/* Broadcast Notification bar */}
+                    <div className="p-3 bg-amber-500/5 rounded-xl border border-[#F59E0B]/20 text-left flex items-start gap-2">
+                      <MaterialIcon name="campaign" className="text-sm text-[#F59E0B] shrink-0 mt-0.5" />
+                      <div className="text-[9px] leading-normal text-[var(--text-secondary)]">
+                        <strong className="text-[var(--text-primary)] block font-bold uppercase tracking-wider">Cohort Broadcast</strong>
+                        <span>Classroom check-in window starts at 09:00 AM. Geofencing radius set to 100m.</span>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <label className="text-[10px] font-extrabold uppercase tracking-wider text-gray-500 dark:text-slate-400">
-                        Password Key
+                  {/* Right Column: Attendance Ring */}
+                  <div className="md:col-span-5 flex flex-col items-center justify-center p-4 bg-[var(--bg-page)] rounded-2xl border border-[var(--border-color)] min-h-[160px]">
+                    <span className="text-[8px] uppercase font-bold text-[var(--text-secondary)] tracking-wider mb-2 text-center block">Clearance Threshold</span>
+                    <div className="relative w-28 h-28 flex items-center justify-center">
+                      <svg className="w-full h-full transform -rotate-90">
+                        <circle
+                          cx="56"
+                          cy="56"
+                          r="34"
+                          stroke="var(--border-color)"
+                          strokeWidth="8"
+                          fill="transparent"
+                        />
+                        <circle
+                          cx="56"
+                          cy="56"
+                          r="34"
+                          stroke="#D4AF37"
+                          strokeWidth="8"
+                          fill="transparent"
+                          strokeDasharray="213.6"
+                          strokeDashoffset="8.5"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                      <div className="absolute flex flex-col items-center">
+                        <span className="text-base font-mono font-black text-[var(--text-primary)]">96%</span>
+                        <span className="text-[8px] uppercase tracking-wider text-[var(--text-secondary)] font-bold">Clearance</span>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Live Activity Feed / Recent Check-ins */}
+                <div className="space-y-2.5 text-left border-t border-[var(--border-color)] pt-4">
+                  <span className="text-[9px] uppercase font-bold text-[var(--text-secondary)] tracking-wider block">Live Telemetry Feed (Recent Check-Ins)</span>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-[var(--bg-page)] border border-[var(--border-color)]">
+                      <div className="flex items-center gap-2.5">
+                        <Avatar src="https://api.dicebear.com/7.x/avataaars/svg?seed=Aadhira" name="Aadhira S" size="sm" />
+                        <div>
+                          <span className="font-bold text-[var(--text-primary)] text-xs block">Aadhira S</span>
+                          <span className="text-[8px] text-[var(--text-secondary)] font-mono">08:52 AM • Hyderabad Campus</span>
+                        </div>
+                      </div>
+                      <Badge variant="success">GPS Verified</Badge>
+                    </div>
+
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-[var(--bg-page)] border border-[var(--border-color)]">
+                      <div className="flex items-center gap-2.5">
+                        <Avatar src="https://api.dicebear.com/7.x/avataaars/svg?seed=Abhishek" name="Abhishek Singh" size="sm" />
+                        <div>
+                          <span className="font-bold text-[var(--text-primary)] text-xs block">Abhishek Singh</span>
+                          <span className="text-[8px] text-[var(--text-secondary)] font-mono">08:54 AM • Hyderabad Campus</span>
+                        </div>
+                      </div>
+                      <Badge variant="success">GPS Verified</Badge>
+                    </div>
+
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-[var(--bg-page)] border border-[var(--border-color)]">
+                      <div className="flex items-center gap-2.5">
+                        <Avatar src="https://api.dicebear.com/7.x/avataaars/svg?seed=Tanvi" name="Tanvi Rao" size="sm" />
+                        <div>
+                          <span className="font-bold text-[var(--text-primary)] text-xs block">Tanvi Rao</span>
+                          <span className="text-[8px] text-[var(--text-secondary)] font-mono">08:58 AM • Remote Session</span>
+                        </div>
+                      </div>
+                      <Badge variant="brand">Bypassed</Badge>
+                    </div>
+                  </div>
+                </div>
+              </Panel>
+
+            </div>
+
+            {/* Right Side: Integrated Authentication Form (50% split) */}
+            <div id="auth-panel-container" className="flex flex-col justify-center">
+              <Panel className="p-8 border-[var(--border-color)] bg-[var(--bg-surface)] space-y-6 relative overflow-hidden text-left shadow-2xl">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-[radial-gradient(circle_at_top_right,var(--leap-brand-soft)_0%,transparent_70%)]"></div>
+                
+                {/* Form header switching dynamically based on viewState */}
+                <div>
+                  <h2 className="font-display font-black text-xl text-[var(--text-primary)]">
+                    {viewState === "login" && "System Access Gate"}
+                    {viewState === "forgot" && "Credentials Recovery"}
+                    {viewState === "reset" && "Verification Gate"}
+                  </h2>
+                  <p className="text-[var(--text-secondary)] text-xs mt-1">
+                    {viewState === "login" && "Provide credentials or select a test role profile below to authorize access."}
+                    {viewState === "forgot" && "Provide your LeapStart email and phone number to request a simulated OTP code."}
+                    {viewState === "reset" && "Check the Twilio SMS Sandbox interceptor below and submit the OTP."}
+                  </p>
+                </div>
+
+                {/* Error/Success Feedbacks inline */}
+                {errorMsg && (
+                  <div className="p-3 text-xs rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 flex items-start gap-2">
+                    <MaterialIcon name="warning" className="text-base shrink-0 mt-0.5" />
+                    <span>{errorMsg}</span>
+                  </div>
+                )}
+
+                {successMsg && (
+                  <div className="p-3 text-xs rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-start gap-2">
+                    <MaterialIcon name="task_alt" className="text-base shrink-0 mt-0.5" />
+                    <span>{successMsg}</span>
+                  </div>
+                )}
+
+                {/* LOGIN FORM */}
+                {viewState === "login" && (
+                  <form onSubmit={handleLogin} className="space-y-4">
+                    <Input
+                      id="inp-login-email-main"
+                      label="Academic Email"
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="student@leapstart.gmail.com"
+                      icon="mail"
+                    />
+
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+                          Password Key
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setViewState("forgot");
+                            setErrorMsg(null);
+                            setSuccessMsg(null);
+                          }}
+                          className="text-[10px] font-bold text-[#D4AF37] hover:underline cursor-pointer"
+                        >
+                          Forgot Password?
+                        </button>
+                      </div>
+                      <div className="relative">
+                        <Input
+                          id="inp-login-password-main"
+                          type={showPassword ? "text" : "password"}
+                          required
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="••••••••"
+                          icon="key"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer"
+                        >
+                          <MaterialIcon name={showPassword ? "visibility_off" : "visibility"} className="text-base" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs text-[var(--text-secondary)]">
+                      <label className="flex items-center gap-2 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={rememberMe}
+                          onChange={(e) => setRememberMe(e.target.checked)}
+                          className="rounded border-[var(--border-color)] bg-[var(--bg-page)] text-[#D4AF37] focus:ring-0"
+                        />
+                        <span>Keep me logged in</span>
                       </label>
-                      <button
+                    </div>
+
+                    <Button
+                      type="submit"
+                      disabled={loading}
+                      variant="brand"
+                      className="w-full py-3.5"
+                      icon="login"
+                    >
+                      <span>Enter Workspace</span>
+                    </Button>
+                  </form>
+                )}
+
+                {/* FORGOT PASSWORD FORM (INLINE) */}
+                {viewState === "forgot" && (
+                  <form onSubmit={handleForgotPasswordSubmit} className="space-y-4">
+                    <Input
+                      id="inp-forgot-email-main"
+                      label="Registered Academic Email"
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="student@leapstart.gmail.com"
+                      icon="mail"
+                    />
+
+                    <Input
+                      id="inp-forgot-phone-main"
+                      label="Phone Number"
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="+91 98765 43210"
+                      icon="phone"
+                    />
+
+                    <div className="flex gap-3 pt-1">
+                      <Button
                         type="button"
+                        variant="secondary"
                         onClick={() => {
-                          setViewState("forgot");
+                          setViewState("login");
                           setErrorMsg(null);
                           setSuccessMsg(null);
                         }}
-                        className="text-[10px] font-bold text-[#007aff] hover:underline dark:text-[#0a84ff] cursor-pointer"
+                        className="flex-1 py-3"
                       >
-                        Forgot Password?
-                      </button>
-                    </div>
-                    <div className="relative">
-                      <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">
-                        <KeyRound className="h-4 w-4" />
-                      </span>
-                      <input
-                        id="inp-login-password-modal"
-                        type={showPassword ? "text" : "password"}
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-10 text-xs text-slate-900 outline-none focus:border-[#007aff] dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-slate-600"
+                        Back
+                      </Button>
+                      <Button
+                        type="submit"
+                        disabled={loading}
+                        variant="brand"
+                        className="flex-2 py-3"
+                        icon="send"
                       >
-                        {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
-                      </button>
+                        Send Code
+                      </Button>
                     </div>
-                  </div>
+                  </form>
+                )}
 
-                  <button
-                    id="btn-login-submit-modal"
-                    type="submit"
-                    disabled={loading}
-                    className="apple-primary flex w-full items-center justify-center gap-2 py-3.5 text-xs font-extrabold uppercase tracking-wider cursor-pointer disabled:opacity-50 transition-colors"
-                  >
-                    {loading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
-                <span>Sign in</span>
-                  </button>
-                </form>
-              )}
-
-              {/* VIEW B: FORGOT PASSWORD */}
-              {viewState === "forgot" && (
-                <form onSubmit={handleForgotPasswordSubmit} className="space-y-4">
-                  <p className="text-[11px] text-gray-500 dark:text-slate-400 leading-relaxed">
-                    Provide your LeapStart email and the app will generate a local reset code for this demo workspace.
-                  </p>
-
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-extrabold uppercase tracking-wider text-gray-500 dark:text-slate-400">
-                      Leapstart School Email
-                    </label>
-                    <div className="relative">
-                      <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">
-                        <Mail className="h-4 w-4" />
-                      </span>
-                      <input
-                        id="inp-forgot-email-modal"
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="aadhira@leapstart.gmail.com"
-                        className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-4 text-xs text-slate-900 outline-none focus:border-[#007aff] dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3 pt-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setViewState("login");
-                        setErrorMsg(null);
-                        setSuccessMsg(null);
-                      }}
-                      className="flex-1 rounded-xl border border-gray-200 py-3 text-xs font-semibold text-gray-600 hover:bg-gray-50 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-950 cursor-pointer"
-                    >
-                      Back
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="apple-primary flex-2 flex items-center justify-center gap-2 py-3 text-xs font-semibold cursor-pointer transition-colors"
-                    >
-                      {loading ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
-                      <span>Send reset code</span>
-                    </button>
-                  </div>
-                </form>
-              )}
-
-              {/* VIEW C: PASSWORD VERIFICATION */}
-              {viewState === "reset" && (
-                <form onSubmit={handleResetPasswordSubmit} className="space-y-4">
-                  <p className="text-[11px] text-gray-500 dark:text-slate-400 leading-relaxed">
-                    Check the Simulated Outbox logs at the bottom to fetch your verification OTP credentials.
-                  </p>
-
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-extrabold uppercase text-gray-500">OTP Security Token</label>
-                    <input
-                      id="inp-reset-otp-modal"
+                {/* RESET PASSWORD FORM (INLINE) */}
+                {viewState === "reset" && (
+                  <form onSubmit={handleResetPasswordSubmit} className="space-y-4">
+                    <Input
+                      id="inp-reset-otp-main"
+                      label="Twilio Verification Code"
                       type="text"
                       required
                       value={otpCode}
                       onChange={(e) => setOtpCode(e.target.value)}
-                      placeholder="LS-849201"
-                      className="w-full rounded-xl border border-emerald-500/40 bg-white px-3 py-2.5 text-xs font-mono font-bold tracking-widest text-emerald-600 outline-none dark:bg-slate-950"
+                      placeholder="LS-123456"
+                      icon="verified"
                     />
-                  </div>
 
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-extrabold uppercase text-gray-500">New Password Key</label>
-                    <input
-                      id="inp-reset-new-password-modal"
+                    <Input
+                      id="inp-reset-newpassword-main"
+                      label="New Password"
                       type="password"
                       required
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-xs text-slate-900 outline-none focus:border-[#007aff] dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
+                      icon="key"
                     />
-                  </div>
 
-                  <div className="flex gap-3 pt-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setViewState("login");
-                        setErrorMsg(null);
-                        setSuccessMsg(null);
-                      }}
-                      className="flex-1 rounded-xl border border-gray-200 py-3 text-xs font-semibold text-gray-600 hover:bg-gray-50 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-950 cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="apple-primary flex-2 flex items-center justify-center gap-2 py-3 text-xs font-semibold cursor-pointer"
-                    >
-                      {loading ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <KeyRound className="h-3.5 w-3.5" />}
-                      <span>Save Password</span>
-                    </button>
-                  </div>
-                </form>
-              )}
+                    <div className="flex gap-3 pt-1">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => {
+                          setViewState("login");
+                          setErrorMsg(null);
+                          setSuccessMsg(null);
+                        }}
+                        className="flex-1 py-3"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="submit"
+                        disabled={loading}
+                        variant="brand"
+                        className="flex-2 py-3"
+                        icon="lock"
+                      >
+                        Save Password
+                      </Button>
+                    </div>
+                  </form>
+                )}
 
-              {/* SIMULATED SMTP SYSTEM FEED */}
-              {simulatedInbox && (
-                <div className="mt-5 rounded-xl border border-sky-100 bg-sky-50/50 p-4 font-mono text-[10px] text-sky-800 dark:border-emerald-950/20 dark:bg-emerald-950/15 dark:text-emerald-350">
-                  <div className="flex items-center gap-1.5 font-sans font-extrabold text-[10px] border-b border-sky-200/40 pb-2 mb-2 uppercase tracking-wider text-sky-900 dark:text-emerald-400">
-                    <span className="h-1.5 w-1.5 animate-ping bg-emerald-400 rounded-full"></span>
-                    <span>Sandbox Interceptor Mail Outbox</span>
+                {/* Simulated Twilio SMS Sandbox Panel (Renders inline in the right panel when code is generated) */}
+                {simulatedInbox && (
+                  <div className="mt-5 rounded-2xl border border-sky-500/20 bg-sky-500/5 p-4 font-mono text-[11px] text-sky-600 dark:text-sky-300 relative overflow-hidden shadow-inner">
+                    <div className="flex items-center gap-2 font-sans font-bold text-[10px] border-b border-sky-500/10 pb-2 mb-2 uppercase tracking-wider text-sky-700 dark:text-sky-400">
+                      <MaterialIcon name="chat" className="text-base text-sky-500 animate-pulse" />
+                      <span>Twilio Sandbox SMS Interceptor</span>
+                    </div>
+                    <p><strong>To Device</strong>: {simulatedInbox.to}</p>
+                    <p className="mt-1.5 flex items-center gap-2">
+                      <strong>Message</strong>: 
+                      <span className="rounded bg-sky-500/10 dark:bg-sky-500/20 px-2 py-0.5 text-xs font-bold border border-sky-500/30 text-sky-700 dark:text-white">
+                        LeapStart Verification Code: {simulatedInbox.otpCode}
+                      </span>
+                    </p>
+                    <p className="mt-2 text-[9px] text-[var(--text-secondary)] font-sans italic">
+                      Sandbox Mode: In a production environment, this dispatches a real SMS payload.
+                    </p>
                   </div>
-                  <p><strong>To Recipient</strong>: {simulatedInbox.to}</p>
-                  <p className="mt-1 flex items-center gap-2">
-                    <strong>OTP Token</strong>: 
-                    <span className="rounded bg-sky-100 px-1.5 py-0.5 font-bold text-sky-900 dark:bg-emerald-900/40 dark:text-emerald-200">
-                      {simulatedInbox.otpCode}
-                    </span>
-                  </p>
-                  <p className="mt-2 text-[9px] text-gray-400 font-sans italic">
-                    Local testing mode shows the reset code immediately.
-                  </p>
-                </div>
-              )}
+                )}
 
-              {/* QUICK FILL COHORT ACCELERATION LINKS */}
-              {viewState === "login" && (
-                <div className="mt-6 border-t border-gray-200 pt-5 dark:border-slate-800">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-gray-400 block text-center mb-3">
-                    Demo logins:
+                {/* Role selection quick fills (Always visible at the bottom of Right Panel for testing ease) */}
+                <div className="pt-4 border-t border-[var(--border-color)]">
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--text-secondary)] block text-center mb-3">
+                    Fast Check / Presets Logins:
                   </span>
                   <div className="grid grid-cols-2 gap-2 text-center">
                     <button
                       onClick={() => handleQuickDemoFill("student")}
-                      className="rounded-lg border border-gray-200 bg-white p-1.5 text-[11px] font-medium text-slate-800 hover:bg-[#e8f2ff] hover:border-[#007aff]/35 transition-colors cursor-pointer dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+                      className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-page)]/60 p-2 text-xs font-bold text-[var(--text-secondary)] hover:border-[#D4AF37]/40 hover:bg-[#D4AF37]/5 transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                     >
-                      🎓 Student Demo
+                      <MaterialIcon name="school" className="text-xs text-[var(--leap-brand)] shrink-0" />
+                      <span>Student</span>
                     </button>
                     <button
                       onClick={() => handleQuickDemoFill("mentor")}
-                      className="rounded-lg border border-gray-200 bg-white p-1.5 text-[11px] font-medium text-slate-800 hover:bg-[#e8f2ff] hover:border-[#007aff]/35 transition-colors cursor-pointer dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+                      className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-page)]/60 p-2 text-xs font-bold text-[var(--text-secondary)] hover:border-[#D4AF37]/40 hover:bg-[#D4AF37]/5 transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                     >
-                      🏫 Mentor Demo
+                      <MaterialIcon name="co_present" className="text-xs text-[var(--leap-brand)] shrink-0" />
+                      <span>Mentor</span>
                     </button>
                     <button
                       onClick={() => handleQuickDemoFill("hr")}
-                      className="rounded-lg border border-gray-200 bg-white p-1.5 text-[11px] font-medium text-slate-800 hover:bg-[#e8f2ff] hover:border-[#007aff]/35 transition-colors cursor-pointer dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+                      className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-page)]/60 p-2 text-xs font-bold text-[var(--text-secondary)] hover:border-[#D4AF37]/40 hover:bg-[#D4AF37]/5 transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                     >
-                      📁 HR Coordinator
+                      <MaterialIcon name="folder_shared" className="text-xs text-[var(--leap-brand)] shrink-0" />
+                      <span>Coordinator</span>
                     </button>
                     <button
                       onClick={() => handleQuickDemoFill("founder")}
-                      className="rounded-lg border border-gray-200 bg-white p-1.5 text-[11px] font-medium text-slate-800 hover:bg-[#e8f2ff] hover:border-[#007aff]/35 transition-colors cursor-pointer dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+                      className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-page)]/60 p-2 text-xs font-bold text-[var(--text-secondary)] hover:border-[#D4AF37]/40 hover:bg-[#D4AF37]/5 transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                     >
-                      ⚡ Founder Demo
+                      <MaterialIcon name="bolt" className="text-xs text-[var(--leap-brand)] shrink-0" />
+                      <span>Founder</span>
                     </button>
                   </div>
                 </div>
-              )}
 
-            </motion.div>
+              </Panel>
+            </div>
+
+          </div>
+        ) : (
+          <div className="pb-12 text-left">
+            <Panel className="bg-[var(--bg-surface)] border-[var(--border-color)] px-6 py-4 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <span className="text-xs font-mono text-[#D4AF37] font-semibold tracking-wider flex items-center gap-2">
+                <span className="h-2 w-2 bg-[#D4AF37] rounded-full animate-pulse"></span>
+                <span>PUBLIC MODE — PORTFOLIO SANDBOX ACTIVE</span>
+              </span>
+              <span className="text-[var(--text-secondary)] text-xs">
+                Review and rate active student builder implementations live below.
+              </span>
+            </Panel>
+            
+            <ProjectShowcase user={GUEST_USER} />
           </div>
         )}
-      </AnimatePresence>
+      </main>
 
+      {/* Footer Area */}
+      <footer className="w-full border-t border-[var(--border-color)] py-6 bg-[var(--bg-surface)]/60 backdrop-blur-md text-xs text-[var(--text-secondary)] select-none z-10 shrink-0">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-[var(--text-primary)] font-bold">LeapStart</span>
+            <span>© 2026 LeapStart School of Technology. All Rights Reserved.</span>
+          </div>
+          <div className="flex gap-4">
+            <a href="https://leapstart.in" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--text-primary)] transition-colors">Official Site</a>
+            <span>|</span>
+            <span className="text-[var(--leap-brand)]">Enterprise Attendance Studio</span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

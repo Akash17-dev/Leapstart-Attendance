@@ -19,11 +19,11 @@ export interface UserProfile {
   linkedinUrl: string;
   githubUrl?: string;
   portfolioUrl?: string;
-  pfpUrl: string; // profile picture placeholder or LinkedIn mockup
+  pfpUrl: string;
   bio: string;
   skills: string[];
   projects: ProjectData[];
-  specialty?: string; // e.g. "Full Stack", "DB & backend api's", "Linux", "Founder", "HR"
+  specialty?: string;
 }
 
 export interface AttendanceRecord {
@@ -33,8 +33,27 @@ export interface AttendanceRecord {
   status: "present" | "absent" | "leave" | "late";
   checkInTime?: string; // ISO string
   checkOutTime?: string; // ISO string
-  location?: string; // latitude, longitude style
+  location?: string; // e.g. "Lat 17.4125, Lng 78.3365"
+  latitude?: number;
+  longitude?: number;
+  accuracy?: number;
+  selfieUrl?: string;
+  deviceId?: string;
+  verificationStatus?: "Verified" | "Warning" | "Manual Review" | "Rejected";
+  distanceFromCampus?: number; // in meters
+  checkInMode?: "offline" | "online";
   verified?: boolean;
+}
+
+export interface AttendanceConfig {
+  id: string;
+  date: string; // YYYY-MM-DD
+  attendanceMode: "offline" | "online" | "hybrid";
+  startTime: string; // HH:MM
+  endTime: string; // HH:MM
+  createdBy: string;
+  remarks?: string;
+  createdAt: string;
 }
 
 export interface LeaveRequest {
@@ -55,6 +74,54 @@ export interface DirectMessage {
   receiverId: string;
   text: string;
   timestamp: string; // ISO string
+}
+
+export interface Channel {
+  id: string;
+  name: string; // e.g. "announcements", "general"
+  type: "text" | "announcement";
+  description?: string;
+  createdAt: string;
+}
+
+export interface ChannelMember {
+  channelId: string;
+  userId: string;
+  joinedAt: string;
+}
+
+export interface MessageReaction {
+  id: string;
+  messageId: string;
+  userId: string;
+  userName: string;
+  emoji: string;
+}
+
+export interface ChatAttachment {
+  id: string;
+  messageId: string;
+  publicId: string;
+  secureUrl: string;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  createdAt: string;
+}
+
+export interface GroupMessage {
+  id: string;
+  groupId: string; // references channelId
+  senderId: string;
+  senderName: string;
+  senderRole?: UserRole;
+  senderPfp?: string;
+  text: string;
+  timestamp: string;
+  isPinned?: boolean;
+  parentId?: string; // for thread replies
+  reactions?: MessageReaction[];
+  attachments?: ChatAttachment[];
 }
 
 export interface PublicFeedback {
@@ -103,11 +170,34 @@ export interface IncubationIdea {
   createdAt: string;
 }
 
-export interface GroupMessage {
+export interface Notification {
   id: string;
-  groupId: string;
-  senderId: string;
-  senderName: string;
-  text: string;
-  timestamp: string;
+  userId: string;
+  title: string;
+  message: string;
+  type: "attendance" | "message" | "leave" | "project" | "announcement" | "system";
+  isRead: boolean;
+  createdAt: string;
+}
+
+export interface AuditLog {
+  id: string;
+  userId?: string;
+  userName?: string;
+  action: string;
+  details?: string;
+  ipAddress?: string;
+  userAgent?: string;
+  isFraudAlert?: boolean;
+  createdAt: string;
+}
+
+export interface FaceVerificationMetadata {
+  id: string;
+  userId: string;
+  faceVerificationStatus: "verified" | "failed" | "unconfigured";
+  faceProvider: string;
+  faceConfidence?: number;
+  faceMatchScore?: number;
+  verifiedAt?: string;
 }

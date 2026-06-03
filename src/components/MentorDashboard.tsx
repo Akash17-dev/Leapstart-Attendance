@@ -4,26 +4,9 @@
  */
 
 import React, { useState, useEffect } from "react";
-import {
-  Users,
-  Clock,
-  CalendarDays,
-  FileCheck2,
-  ExternalLink,
-  Search,
-  CheckCircle,
-  XCircle,
-  Briefcase,
-  Layers,
-  MapPin,
-  RefreshCw,
-  Plus,
-  Compass,
-  ArrowUpRight,
-  Send
-} from "lucide-react";
-import { UserProfile, AttendanceRecord, LeaveRequest } from "../types";
+import { UserProfile, AttendanceRecord, LeaveRequest, AttendanceConfig } from "../types";
 import AddStudentPanel from "./AddStudentPanel";
+import { MaterialIcon, Button, Input, Panel } from "./DesignSystem";
 
 interface MentorDashboardProps {
   user: UserProfile;
@@ -57,11 +40,36 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
   const [announcementText, setAnnouncementText] = useState("");
   const [announcementMsg, setAnnouncementMsg] = useState("");
 
+  // Config States for Override
+  const [configMode, setConfigMode] = useState<"offline" | "online" | "hybrid">("hybrid");
+  const [configStart, setConfigStart] = useState("09:00");
+  const [configEnd, setConfigEnd] = useState("18:00");
+  const [configRemarks, setConfigRemarks] = useState("");
+  const [configMsg, setConfigMsg] = useState("");
+
   useEffect(() => {
     fetchStudents();
     fetchAttendanceRecords();
     fetchLeavePetitions();
-  }, [attendanceDate]);
+    fetchTodayConfig();
+  }, [attendanceDate, currentTab]);
+
+  const fetchTodayConfig = async () => {
+    try {
+      const resp = await fetch("/api/attendance/config/today");
+      if (resp.ok) {
+        const config = await resp.json();
+        if (config) {
+          setConfigMode(config.attendanceMode);
+          setConfigStart(config.startTime);
+          setConfigEnd(config.endTime);
+          setConfigRemarks(config.remarks || "");
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const fetchStudents = async () => {
     try {
@@ -169,6 +177,35 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
     }
   };
 
+  // Save config override
+  const handleSaveConfigOverride = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setConfigMsg("");
+    try {
+      const resp = await fetch("/api/attendance/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          date: attendanceDate,
+          attendanceMode: configMode,
+          startTime: configStart,
+          endTime: configEnd,
+          remarks: configRemarks,
+          createdBy: user.name
+        })
+      });
+      const data = await resp.json();
+      if (resp.ok) {
+        setConfigMsg(`Daily configuration overrides updated successfully.`);
+        setTimeout(() => setConfigMsg(""), 4000);
+      } else {
+        setConfigMsg(data.error || "Failed to update configuration.");
+      }
+    } catch (err) {
+      setConfigMsg("Failed to configure attendance mode override.");
+    }
+  };
+
   const getStudentStatusForDate = (studentId: string) => {
     const record = attendanceRecords.find((r) => r.userId === studentId && r.date === attendanceDate);
     return record ? record.status : "unmarked";
@@ -177,6 +214,7 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
   // Search list filter
   const filteredStudents = studentsList.filter((std) =>
     std.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    std.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
     std.skills.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
@@ -193,7 +231,7 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
       return;
     }
     try {
-      const response = await fetch(`/api/groups/year-${announcementYear}/messages`, {
+      const response = await fetch(`/api/channels/year-${announcementYear}/messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -206,31 +244,63 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
         throw new Error(data.error || "Announcement blocked.");
       }
       setAnnouncementText("");
-      setAnnouncementMsg(`Posted to ${announcementYear === "1" ? "1st" : "2nd"} year group.`);
+      setAnnouncementMsg(`Announcement posted to #year-${announcementYear} channel!`);
+      setTimeout(() => setAnnouncementMsg(""), 4000);
     } catch (err: any) {
       setAnnouncementMsg(err.message || "Unable to post announcement.");
     }
   };
 
+  // EXPORTERS
+  const handleExportCSV = () => {
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "ID,Student ID,Date,Status,Check-In Time,Verification,Distance (m),Mode\n";
+    
+    attendanceRecords.forEach((rec) => {
+      const row = [
+        rec.id,
+        rec.userId,
+        rec.date,
+        rec.status,
+        rec.checkInTime || "",
+        rec.verificationStatus || "",
+        rec.distanceFromCampus || "",
+        rec.checkInMode || ""
+      ].map(val => `"${val}"`).join(",");
+      csvContent += row + "\n";
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `attendance_export_${attendanceDate}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleExportPDF = () => {
+    window.print();
+  };
+
   return (
     <div className="dashboard-shell flex-1 overflow-y-auto px-6 py-6 font-sans md:px-8">
+      
       {/* HEADER SECTION */}
       <header className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div>
-          <h2 className="font-display text-xl font-bold tracking-tight text-slate-900 dark:text-white md:text-2xl">
+          <h2 className="font-display text-xl font-bold tracking-tight text-[var(--text-primary)] md:text-2xl">
             Mentor Workspace
           </h2>
-          <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
-            Manage attendance, student profiles, and leave approvals.
+          <p className="text-xs text-[var(--text-secondary)] mt-1">
+            Overrule student presence indexes, respond to leave applications, and post announcements.
           </p>
         </div>
-        <div className="flex items-center gap-2 rounded-xl bg-[#e8f2ff]/80 px-3.5 py-1.5 dark:bg-[#0a84ff]/14 text-[#0066cc] dark:text-[#0a84ff] border border-[#007aff]/12">
-          <Layers className="h-4 w-4" />
-          <span className="font-mono text-xs font-semibold">{user.specialty || "Instructor Faculty"}</span>
+        <div className="flex items-center gap-2 rounded-xl bg-[#e8f2ff]/80 px-3.5 py-1.5 dark:bg-[#0a84ff]/14 text-[#0066cc] dark:text-[#0a84ff] border border-[var(--border-color)]">
+          <MaterialIcon name="layers" className="text-base text-[#D4AF37]" />
+          <span className="font-mono text-xs font-semibold">{user.specialty || "Faculty"}</span>
         </div>
       </header>
-
-      {/* VIEW DECK */}
 
       {/* NODE: CLASS ROSTER GRID */}
       {currentTab === "student-roster" && (
@@ -238,163 +308,247 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
           <AddStudentPanel compact onStudentAdded={handleStudentAdded} />
 
           {/* Controls Bar */}
-          <div className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 md:flex-row md:items-center md:justify-between ">
+          <div className="flex flex-col gap-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] p-4 md:flex-row md:items-center md:justify-between">
             {/* Search Input */}
             <div className="relative max-w-sm flex-1">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                <Search className="h-4 w-4" />
-              </span>
-              <input
+              <Input
                 id="inp-roster-search"
                 type="text"
-                placeholder="Search students by name or skill..."
+                placeholder="Search students..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 bg-white py-2 pl-10 pr-4 text-xs text-gray-900 outline-none focus:border-[#007aff] dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
+                icon="search"
               />
             </div>
 
             {/* Manual attendance entry */}
             <div className="flex items-center gap-2.5">
-              <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">Manual date:</span>
+              <span className="text-xs text-[var(--text-secondary)] font-bold uppercase tracking-wider">Cohort Date:</span>
               <input
                 id="inp-roster-date"
                 type="date"
                 value={attendanceDate}
                 onChange={(e) => setAttendanceDate(e.target.value)}
-                className="rounded-xl border border-gray-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-gray-800 outline-none focus:border-[#007aff] dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
+                className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-page)]/50 px-3.5 py-1.5 text-xs font-semibold text-[var(--text-primary)] outline-none focus:border-[#D4AF37] cursor-pointer"
               />
             </div>
           </div>
 
-          <div className="premium-panel p-4">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="grid gap-6 lg:grid-cols-3">
+            
+            {/* Override instructions */}
+            <Panel className="lg:col-span-2 text-left flex flex-col justify-between">
               <div>
-                <h3 className="font-display text-sm font-bold text-slate-900 dark:text-white">Manual attendance override</h3>
-                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                  Use the status controls below when a student forgot check-in, network failed, or attendance needs mentor correction.
+                <h3 className="font-display text-sm font-bold uppercase tracking-wider mb-2">
+                  Roster Overrides Dashboard
+                </h3>
+                <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                  Mentors hold total authority to Backfill or Correct student presence. Toggling status below immediately registers changes in the Postgres database layer.
                 </p>
+
+                <div className="flex flex-wrap gap-3 pt-6">
+                  <Button 
+                    variant="secondary"
+                    onClick={handleExportCSV}
+                    icon="download"
+                  >
+                    Download CSV Logs
+                  </Button>
+                  <Button 
+                    variant="secondary"
+                    onClick={handleExportPDF}
+                    icon="description"
+                  >
+                    Print PDF Sheet
+                  </Button>
+                </div>
               </div>
-              <span className="rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider leap-brand-pill">
-                Date: {attendanceDate}
-              </span>
-            </div>
+
+              <div className="mt-4 rounded-xl bg-[var(--bg-page)]/50 p-3.5 text-xs text-[var(--text-secondary)] border border-[var(--border-color)]">
+                Cohort Date target: <strong>{attendanceDate}</strong>
+              </div>
+            </Panel>
+
+            {/* Override configuration */}
+            <Panel className="text-left">
+              <h3 className="font-display text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
+                <MaterialIcon name="sliders" className="text-base text-[var(--leap-brand)]" />
+                <span>Today's Mode Override</span>
+              </h3>
+              
+              {configMsg && (
+                <div className="mb-3 p-2 text-[10px] font-mono text-center rounded bg-sky-500/10 border border-sky-500/20 text-sky-400 font-semibold">
+                  {configMsg}
+                </div>
+              )}
+
+              <form onSubmit={handleSaveConfigOverride} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">Override Mode</label>
+                  <select
+                    value={configMode}
+                    onChange={(e) => setConfigMode(e.target.value as any)}
+                    className="w-full rounded-xl border border-[var(--border-color)] bg-[var(--bg-page)]/50 px-4 py-3.5 text-xs text-[var(--text-primary)] outline-none focus:border-[#D4AF37] cursor-pointer"
+                  >
+                    <option value="offline">Offline (GPS/Webcam Required)</option>
+                    <option value="online">Online (Bypassed)</option>
+                    <option value="hybrid">Hybrid Choice</option>
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <Input
+                    label="Start Time"
+                    type="text"
+                    value={configStart}
+                    onChange={(e) => setConfigStart(e.target.value)}
+                  />
+                  <Input
+                    label="End Time"
+                    type="text"
+                    value={configEnd}
+                    onChange={(e) => setConfigEnd(e.target.value)}
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  variant="brand"
+                  className="w-full mt-2"
+                >
+                  Save Daily Override
+                </Button>
+              </form>
+            </Panel>
+
           </div>
 
-          <form onSubmit={handlePostYearAnnouncement} className="premium-panel p-4">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
-              <div className="min-w-0 flex-1">
-                <h3 className="font-display text-sm font-bold text-slate-900 dark:text-white">Post to year group</h3>
-                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                  Mentors can post announcements to a class group, but cannot read the student conversation.
-                </p>
-                <textarea
-                  rows={2}
-                  value={announcementText}
-                  onChange={(event) => setAnnouncementText(event.target.value)}
-                  placeholder="Announcement for this year group..."
-                  className="premium-input mt-3 resize-none"
-                />
+          {/* Announcement poster */}
+          <Panel className="text-left">
+            <form onSubmit={handlePostYearAnnouncement} className="space-y-4">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-display text-sm font-bold uppercase tracking-wider">Post Classroom Announcement</h3>
+                  <p className="mt-1 text-xs text-[var(--text-secondary)] leading-relaxed">
+                    Dispatches announcements straight to the student Discord server channels.
+                  </p>
+                  <Input
+                    isTextArea
+                    rows={2}
+                    value={announcementText}
+                    onChange={(event) => setAnnouncementText(event.target.value)}
+                    placeholder="Type announcements here..."
+                    className="mt-3"
+                  />
+                </div>
+                <div className="flex gap-3 shrink-0 items-end">
+                  <div className="space-y-1.5 text-left">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">Year Level</label>
+                    <select
+                      value={announcementYear}
+                      onChange={(event) => setAnnouncementYear(event.target.value)}
+                      className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-page)]/50 px-4 py-3.5 text-xs text-[var(--text-primary)] outline-none focus:border-[#D4AF37] font-semibold cursor-pointer"
+                    >
+                      <option value="1">1st Year Lounge</option>
+                      <option value="2">2nd Year Lounge</option>
+                      <option value="3">3rd Year Lounge</option>
+                      <option value="4">4th Year Lounge</option>
+                    </select>
+                  </div>
+                  <Button type="submit" variant="brand" className="h-[46px]" icon="send">
+                    Dispatch
+                  </Button>
+                </div>
               </div>
-              <div className="flex gap-2">
-                <select
-                  value={announcementYear}
-                  onChange={(event) => setAnnouncementYear(event.target.value)}
-                  className="premium-input w-32"
-                >
-                  <option value="1">1st year</option>
-                  <option value="2">2nd year</option>
-                </select>
-                <button type="submit" className="apple-primary inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold">
-                  <Send className="h-4 w-4" />
-                  Post
-                </button>
-              </div>
-            </div>
-            {announcementMsg && <p className="mt-3 text-xs font-semibold text-slate-500 dark:text-slate-400">{announcementMsg}</p>}
-          </form>
+              {announcementMsg && <p className="text-xs font-mono text-[var(--leap-brand)] font-semibold">{announcementMsg}</p>}
+            </form>
+          </Panel>
 
-          {/* Grid Layout of students */}
-          <div className="rounded-xl border border-gray-200 bg-white  overflow-hidden dark:border-slate-800 dark:bg-slate-900">
+          {/* Students Grid List */}
+          <Panel className="overflow-hidden p-0 text-left">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
+              <table className="table-v3">
                 <thead>
-                  <tr className="border-b border-gray-100 bg-gray-50/50 text-gray-400 font-bold uppercase tracking-wider dark:border-slate-800 dark:bg-slate-950/20">
-                    <th className="py-3 px-5">Student Avatar</th>
-                    <th className="py-3 px-5">LeapStart Mail Address</th>
-                    <th className="py-3 px-5 font-mono text-center">Status for {attendanceDate}</th>
-                    <th className="py-3 px-5 text-center">Update Status</th>
+                  <tr>
+                    <th>Student Avatar</th>
+                    <th>LeapStart Mail Address</th>
+                    <th className="text-center font-mono">Status for {attendanceDate}</th>
+                    <th className="text-center">Override status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-slate-800/60">
+                <tbody>
                   {filteredStudents.map((std) => {
                     const status = getStudentStatusForDate(std.id);
                     return (
-                      <tr key={std.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-950/20">
-                        {/* Student Info */}
-                        <td className="py-3 px-5">
+                      <tr key={std.id}>
+                        <td>
                           <div className="flex items-center gap-3">
                             <img
                               src={std.pfpUrl}
                               alt={std.name}
                               referrerPolicy="no-referrer"
-                              className="h-8.5 w-8.5 rounded-lg bg-[#e8f2ff] border border-[#007aff]/12 shrink-0"
+                              className="h-8.5 w-8.5 rounded-lg bg-[var(--bg-page)] border border-[var(--border-color)] shrink-0"
                             />
                             <div>
-                              <span className="font-sans text-xs font-semibold text-slate-900 dark:text-slate-100 block">
+                              <span className="font-sans text-xs font-semibold block text-[var(--text-primary)]">
                                 {std.name}
                               </span>
-                              <span className="text-[10px] text-gray-400 block truncate max-w-xs">{std.bio}</span>
+                              <span className="text-[10px] text-[var(--text-secondary)] block truncate max-w-xs">{std.bio}</span>
                             </div>
                           </div>
                         </td>
 
-                        {/* Email Details */}
-                        <td className="py-3 px-5 text-gray-500 dark:text-slate-400 font-mono text-[11px] font-medium">
+                        <td className="text-[var(--text-secondary)] font-mono text-[11px] font-medium">
                           {std.email}
                         </td>
 
-                        {/* Dynamic Status badge */}
-                        <td className="py-3 px-5 text-center">
+                        <td className="text-center">
                           <span
-                            className={`rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase ${
+                            className={`rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
                               status === "present"
-                                ? "bg-emerald-50 text-[#10B981]"
-                                : status === "absent"
-                                ? "bg-rose-50 text-rose-600"
+                                ? "bg-emerald-500/10 text-[#10B981]"
+                                : status === "late"
+                                ? "bg-yellow-500/10 text-yellow-500"
                                 : status === "leave"
-                                ? "bg-amber-50 text-[#ff9f0a]"
-                                : "bg-gray-100 text-gray-400 dark:bg-slate-800"
+                                ? "bg-amber-500/10 text-[#ff9f0a]"
+                                : status === "absent"
+                                ? "bg-rose-500/10 text-rose-500"
+                                : "bg-gray-800/40 text-gray-500"
                             }`}
                           >
                             {status}
                           </span>
                         </td>
 
-                        {/* Trigger controls button strip */}
-                        <td className="py-3 px-5 text-center">
-                          <div className="flex items-center justify-center gap-1">
-                            <button
+                        <td className="text-center">
+                          <div className="flex items-center justify-center gap-1.5">
+                            <Button
                               id={`btn-mark-present-${std.id}`}
                               onClick={() => handleUpdateStudentStatus(std.id, "present")}
-                              className="rounded bg-emerald-50 px-2 py-1 text-[10px] font-bold text-[#10B981] hover:bg-[#10B981] hover:text-white cursor-pointer transition-all dark:bg-emerald-950/30"
+                              className="rounded-lg px-2.5 py-1.5 text-[9px] uppercase font-bold"
+                              variant="secondary"
+                              style={{ color: "#10B981", borderColor: "rgba(16,185,129,0.2)" }}
                             >
                               Present
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                               id={`btn-mark-absent-${std.id}`}
                               onClick={() => handleUpdateStudentStatus(std.id, "absent")}
-                              className="rounded bg-rose-50 px-2 py-1 text-[10px] font-bold text-rose-600 hover:bg-rose-600 hover:text-white cursor-pointer transition-all dark:bg-rose-950/30"
+                              className="rounded-lg px-2.5 py-1.5 text-[9px] uppercase font-bold"
+                              variant="secondary"
+                              style={{ color: "#EF4444", borderColor: "rgba(239,68,68,0.2)" }}
                             >
                               Absent
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                               id={`btn-mark-late-${std.id}`}
                               onClick={() => handleUpdateStudentStatus(std.id, "late")}
-                              className="rounded bg-yellow-50 px-2 py-1 text-[10px] font-bold text-yellow-600 hover:bg-yellow-600 hover:text-white cursor-pointer transition-all dark:bg-yellow-950/30"
+                              className="rounded-lg px-2.5 py-1.5 text-[9px] uppercase font-bold"
+                              variant="secondary"
+                              style={{ color: "#F59E0B", borderColor: "rgba(245,158,11,0.2)" }}
                             >
                               Late
-                            </button>
+                            </Button>
                           </div>
                         </td>
                       </tr>
@@ -403,198 +557,213 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
                 </tbody>
               </table>
             </div>
-          </div>
+          </Panel>
+
         </div>
       )}
 
       {/* NODE: STAFF TELEMETRY CHECKIN */}
       {currentTab === "staff-logs" && (
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-2 text-left">
+          
           {/* Action Checkin */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900  flex flex-col justify-between">
+          <Panel className="flex flex-col justify-between">
             <div>
-              <h3 className="font-display text-sm font-semibold text-slate-900 dark:text-gray-100 uppercase tracking-wider mb-4 flex items-center gap-2">
-                <Clock className="h-5 w-5 text-[#007aff]" />
-                <span>Mentor Check-in</span>
+              <h3 className="font-display text-sm font-semibold uppercase tracking-wider mb-4 flex items-center gap-2">
+                <MaterialIcon name="timer" className="text-xl text-[var(--leap-brand)]" />
+                <span>Mentor Check-in Duty Log</span>
               </h3>
-              <p className="text-xs text-gray-500 dark:text-slate-400 leading-normal">
+              <p className="text-xs text-[var(--text-secondary)] leading-normal">
                 Instructors are requested to log their presence timestamps to cross-reference school lab hour guidelines.
               </p>
 
-              <div className="my-6 rounded-xl bg-gray-50/50 p-6 text-center dark:bg-slate-950/40 border border-gray-100 dark:border-slate-800">
-                <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Date stamp</span>
-                <div className="my-1.5 font-mono text-lg font-bold text-slate-800 dark:text-white">
+              <div className="my-6 rounded-2xl bg-[var(--bg-page)]/50 border border-[var(--border-color)] p-6 text-center">
+                <span className="text-[10px] uppercase font-bold text-[var(--text-secondary)] tracking-wider">Duty date stamp</span>
+                <div className="my-1.5 font-mono text-lg font-bold">
                   {new Date().toISOString().split("T")[0]}
                 </div>
 
                 {staffCheckedIn ? (
                   <div className="mt-4">
-                    <span className="text-xs font-bold text-[#10B981] block">✔ Duty Log Verified</span>
-                    <span className="text-[11px] font-mono text-gray-400 dark:text-slate-500 block mt-1">
+                    <span className="text-xs font-bold text-[#10B981] block">✔ Lesson Duty Verified</span>
+                    <span className="text-[10px] font-mono text-[var(--text-secondary)] block mt-1">
                       Time logged: {staffCheckinTime} | Location: {staffLocation}
                     </span>
                   </div>
                 ) : (
                   <div className="mt-4">
-                    <button
+                    <Button
                       id="btn-mentor-checkin"
                       onClick={handleStaffCheckin}
-                      disabled={staffLoading}
-                      className="apple-primary px-5 py-2.5 text-xs font-semibold cursor-pointer transition-colors"
+                      loading={staffLoading}
+                      variant="brand"
+                      className="px-5 py-2.5"
                     >
-                      {staffLoading ? "Logging..." : "Log My Lesson Duty"}
-                    </button>
+                      Log My Lesson Duty
+                    </Button>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="rounded-xl bg-[#e8f2ff]/60 border border-[#007aff]/12 dark:bg-slate-950/20 dark:border-slate-800 p-4 shrink-0 flex items-start gap-3">
-              <FileCheck2 className="h-5 w-5 text-[#007aff] shrink-0" />
+            <div className="rounded-xl border border-emerald-500/10 bg-emerald-500/5 p-4 text-[#10B981] flex items-start gap-3 shrink-0">
+              <MaterialIcon name="fact_check" className="text-xl text-[#10B981] shrink-0" />
               <div>
-                <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">Lesson Guideline Audit</h4>
-                <p className="text-[10px] text-gray-400 leading-normal mt-0.5">
+                <h4 className="text-xs font-bold font-sans">Lesson Guideline Audit</h4>
+                <p className="text-[10px] text-[var(--text-secondary)] leading-normal mt-0.5">
                   Logged times will establish criteria logs managed securely under Operational Manager Manikanta Mothukuri's office dashboards.
                 </p>
               </div>
             </div>
-          </div>
+          </Panel>
 
           {/* Guidelines and specs card */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900  space-y-4">
-            <h3 className="font-display text-sm font-semibold text-slate-900 dark:text-gray-100 uppercase tracking-wider">
-              Mentor Schedule
+          <Panel className="space-y-4">
+            <h3 className="font-display text-sm font-semibold uppercase tracking-wider">
+              Mentor Cohorts Assignment
             </h3>
-            <p className="text-xs text-gray-500 dark:text-slate-400 leading-relaxed">
-              As LeapStart mentors, experiential instruction demands high interactive engagement. Ensure check-ins represent real laboratory sessions with 1st Year student groups.
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+              As LeapStart mentors, experiential instruction demands high interactive engagement. Ensure check-ins represent real laboratory sessions with student groups.
             </p>
 
-            <div className="space-y-3 pt-2">
-              <div className="flex justify-between border-b border-gray-100 pb-2 dark:border-slate-800 text-xs text-gray-500">
-                <span className="font-semibold text-slate-900 dark:text-slate-300">Suhas Choppala</span>
+            <div className="space-y-3 pt-2 text-xs text-[var(--text-secondary)]">
+              <div className="flex justify-between border-b border-[var(--border-color)] pb-2">
+                <span className="font-semibold text-[var(--text-primary)]">Suhas Choppala</span>
                 <span>Full Stack Web Laboratory (1st Year)</span>
               </div>
-              <div className="flex justify-between border-b border-gray-100 pb-2 dark:border-slate-800 text-xs text-gray-500">
-                <span className="font-semibold text-slate-900 dark:text-slate-300">Goli Venu Gopal</span>
+              <div className="flex justify-between border-b border-[var(--border-color)] pb-2">
+                <span className="font-semibold text-[var(--text-primary)]">Goli Venu Gopal</span>
                 <span>DB Schema & API Security Labs</span>
               </div>
-              <div className="flex justify-between pb-2 text-xs text-gray-500">
-                <span className="font-semibold text-slate-800 dark:text-slate-300">Manoj Karajada</span>
+              <div className="flex justify-between pb-2">
+                <span className="font-semibold text-[var(--text-primary)]">Manoj Karajada</span>
                 <span>Enterprise Linux Runtimes Automation</span>
               </div>
             </div>
-          </div>
+          </Panel>
+
         </div>
       )}
 
       {/* NODE: LEAVE APPLICANTS CRITIQUE */}
       {currentTab === "mentor-leaves" && (
-        <div className="space-y-6">
+        <div className="space-y-6 text-left">
           {leavesMsg && (
-            <div className="rounded-xl border border-emerald-100 bg-green-50 p-3.5 text-xs text-emerald-800 dark:bg-slate-950/30 dark:text-[#10B981] dark:border-slate-800/50">
+            <div className="rounded-xl border border-emerald-500/25 bg-green-500/10 p-3.5 text-xs text-emerald-400">
               {leavesMsg}
             </div>
           )}
 
-          <div className="rounded-xl border border-gray-200 bg-white  overflow-hidden dark:border-slate-800 dark:bg-slate-900">
-            <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 dark:bg-slate-950/40 dark:border-slate-800">
-              <h4 className="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">
-                Pending Leave Requests
+          <Panel className="overflow-hidden p-0">
+            <div className="px-4 py-3 bg-[var(--bg-elevated)] border-b border-[var(--border-color)]">
+              <h4 className="text-xs font-bold uppercase tracking-wider">
+                Pending Leave Petitions
               </h4>
             </div>
 
-            <div className="divide-y divide-gray-100 dark:divide-slate-800">
+            <div className="divide-y divide-[var(--border-color)] text-[var(--text-primary)]">
               {pendingLeaves.filter((l) => l.status === "pending").map((lv) => {
                 const stdName = studentsList.find((u) => u.id === lv.userId)?.name || lv.userId;
                 return (
-                  <div key={lv.id} className="p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
-                        {stdName} <span className="text-gray-400 font-normal">({lv.userId})</span>
+                  <div key={lv.id} className="p-5 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <span className="text-xs font-bold">
+                        {stdName} <span className="text-[var(--text-secondary)] font-normal">({lv.userId})</span>
                       </span>
-                      <span className="font-mono text-[11px] text-gray-500">
-                        Calendar Request: <strong>{lv.startDate} to {lv.endDate}</strong>
+                      <span className="font-mono text-[10px] text-[var(--text-secondary)]">
+                        Requested Dates: <strong>{lv.startDate} to {lv.endDate}</strong>
                       </span>
                     </div>
-                    <p className="text-xs text-gray-500 dark:text-slate-400 italic">
+                    <p className="text-xs text-[var(--text-secondary)] italic">
                       Reason: "{lv.reason}"
                     </p>
 
                     {actionLeaveId === lv.id ? (
-                      <div className="space-y-2.5 rounded-lg bg-gray-50 p-3 dark:bg-slate-950/40 border border-gray-100 dark:border-slate-800">
-                        <label className="text-[10px] uppercase font-bold text-gray-400 block">
-                          Supervisor Official Comments
-                        </label>
-                        <input
+                      <div className="space-y-3 rounded-2xl bg-[var(--bg-page)]/50 p-4 border border-[var(--border-color)] max-w-xl">
+                        <Input
                           id={`inp-leave-remarks-${lv.id}`}
                           type="text"
                           value={leaveRemarks}
                           onChange={(e) => setLeaveRemarks(e.target.value)}
-                          placeholder="e.g. Good luck with the Hackathon presentation! Ensure backlog check-ins are logged."
-                          className="w-full rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-900 outline-none focus:border-[#007aff] dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100"
+                          placeholder="Provide approval comments or remarks..."
+                          label="Official Supervisor Comments"
                         />
                         <div className="flex gap-2">
-                          <button
+                          <Button
                             id={`btn-approve-confirm-${lv.id}`}
                             onClick={() => handleRespondToLeave(lv.id, "approved")}
-                            className="rounded bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 cursor-pointer"
+                            variant="brand"
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-none px-4 py-2"
                           >
-                            Confirm Approve
-                          </button>
-                          <button
+                            Approve Petition
+                          </Button>
+                          <Button
                             id={`btn-reject-confirm-${lv.id}`}
                             onClick={() => handleRespondToLeave(lv.id, "rejected")}
-                            className="rounded bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-rose-700 cursor-pointer"
+                            variant="danger"
+                            className="px-4 py-2 text-xs font-bold"
                           >
-                            Confirm Decline
-                          </button>
-                          <button
+                            Decline Petition
+                          </Button>
+                          <Button
                             id={`btn-cancel-respond-${lv.id}`}
                             onClick={() => setActionLeaveId(null)}
-                            className="rounded border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-600 cursor-pointer dark:bg-slate-800 dark:text-slate-200"
+                            variant="secondary"
+                            className="px-4 py-2 text-xs font-bold"
                           >
                             Cancel
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     ) : (
-                      <button
+                      <Button
                         id={`btn-action-leave-${lv.id}`}
                         onClick={() => {
                           setActionLeaveId(lv.id);
                           setLeaveRemarks("");
                         }}
-                        className="rounded-lg border border-[#007aff] text-[#007aff] px-3.5 py-1.5 text-xs font-semibold hover:bg-[#e8f2ff] hover:text-[#007aff] cursor-pointer dark:text-[#0a84ff] dark:border-[#007aff] dark:hover:bg-slate-950/40 transition-colors"
+                        variant="secondary"
+                        className="text-[#D4AF37] border-[#D4AF37]/50 hover:bg-[#D4AF37]/10"
                       >
                         Review Request
-                      </button>
+                      </Button>
                     )}
                   </div>
                 );
               })}
               {pendingLeaves.filter((l) => l.status === "pending").length === 0 && (
-                <p className="text-center text-xs text-gray-400 italic py-8">
-                  All leave requests cleared. No pending petitions.
+                <p className="text-center text-xs text-[var(--text-secondary)] italic py-12 font-medium">
+                  All student leave petitions processed.
                 </p>
               )}
             </div>
-          </div>
+          </Panel>
         </div>
       )}
 
-      {/* NODE: LINKEDIN DIRECTORIES */}
+      {/* NODE: STUDENT PROFILES */}
       {currentTab === "mentor-profiles" && (
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-3 text-left">
+          
           {/* Lists */}
-          <div className="rounded-xl border border-gray-200 bg-white dark:border-slate-800 dark:bg-slate-900  overflow-hidden flex flex-col max-h-[450px]">
-            <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 dark:bg-slate-950/40 dark:border-slate-800">
-              <h4 className="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider">
-                Student Directory
+          <Panel className="overflow-hidden p-0 flex flex-col max-h-[450px]">
+            <div className="px-4 py-3 bg-[var(--bg-elevated)] border-b border-[var(--border-color)] space-y-2">
+              <h4 className="text-xs font-bold uppercase tracking-wider">
+                Student Portfolios Directory
               </h4>
+              <Input
+                id="inp-profile-search"
+                type="text"
+                placeholder="Search portfolios..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                icon="search"
+                className="py-1 px-3 bg-black/10 border-0"
+              />
             </div>
 
-            <div className="flex-1 overflow-y-auto py-2 divide-y divide-gray-50 dark:divide-slate-800 no-scrollbar">
-              {studentsList.map((std) => {
+            <div className="flex-1 overflow-y-auto py-2 divide-y divide-[var(--border-color)] no-scrollbar">
+              {filteredStudents.map((std) => {
                 const isSelected = selectedProfileStd?.id === std.id;
                 return (
                   <button
@@ -603,64 +772,70 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
                     onClick={() => setSelectedProfileStd(std)}
                     className={`flex items-center gap-3 w-full px-4 py-2.5 text-left cursor-pointer transition-colors ${
                       isSelected
-                        ? "bg-[#e8f2ff]/82 border-r-3 border-[#007aff] dark:bg-slate-800"
-                        : "hover:bg-gray-50 dark:hover:bg-slate-950/60"
+                        ? "bg-[var(--bg-elevated)] border-r-2 border-[#D4AF37] text-[var(--text-primary)]"
+                        : "hover:bg-[var(--text-primary)]/5 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                     }`}
                   >
                     <img
                       src={std.pfpUrl}
                       alt={std.name}
                       referrerPolicy="no-referrer"
-                      className="h-8.5 w-8.5 rounded-lg bg-[#e8f2ff] border border-[#007aff]/12 shrink-0"
+                      className="h-8.5 w-8.5 rounded-lg bg-[var(--bg-page)] border border-[var(--border-color)] shrink-0"
                     />
-                    <div className="truncate">
-                      <span className="font-sans text-xs font-semibold text-slate-900 dark:text-slate-100 block truncate">
+                    <div className="truncate min-w-0">
+                      <span className="font-sans text-xs font-semibold block text-[var(--text-primary)]">
                         {std.name}
                       </span>
-                      <span className="text-[10px] text-[#007aff] block mt-0.5 truncate dark:text-[#0a84ff] font-mono">
-                        View LinkedIn specs
+                      <span className="text-[10px] text-[#D4AF37] block mt-0.5 font-mono">
+                        View spec sheet
                       </span>
                     </div>
                   </button>
                 );
               })}
+              {filteredStudents.length === 0 && (
+                <p className="p-4 text-center text-xs text-[var(--text-secondary)] italic">
+                  No matching student profiles.
+                </p>
+              )}
             </div>
-          </div>
+          </Panel>
 
-          {/* LinkedIn mock Profile Specs Container */}
-          <div className="rounded-xl border border-gray-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-6 md:col-span-2  space-y-6 overflow-y-auto max-h-[450px] no-scrollbar">
+          {/* Profile Specs Container */}
+          <Panel className="md:col-span-2 space-y-6 overflow-y-auto max-h-[450px] no-scrollbar">
             {selectedProfileStd ? (
               <div className="space-y-6">
+                
                 {/* Intro */}
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                   <img
                     src={selectedProfileStd.pfpUrl}
                     alt={selectedProfileStd.name}
                     referrerPolicy="no-referrer"
-                    className="h-16 w-16 rounded-xl bg-[#e8f2ff] border border-[#007aff]/14"
+                    className="h-16 w-16 rounded-xl bg-[var(--bg-page)] border border-[var(--border-color)]"
                   />
                   <div className="space-y-1">
-                    <h3 className="font-display text-base font-bold text-slate-900 dark:text-white">
+                    <h3 className="font-display text-base font-bold">
                       {selectedProfileStd.name}
                     </h3>
-                    <p className="text-xs text-gray-500 dark:text-slate-400">{selectedProfileStd.bio}</p>
+                    <p className="text-xs text-[var(--text-secondary)]">{selectedProfileStd.bio}</p>
                     <a
                       href={selectedProfileStd.linkedinUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0a66c2] hover:underline"
+                      className="inline-flex items-center gap-1 text-[11px] font-bold text-[#D4AF37] hover:underline"
                     >
                       <span>Open LinkedIn profile</span>
-                      <ArrowUpRight className="h-3.5 w-3.5" />
+                      <MaterialIcon name="arrow_outward" className="text-sm" />
                     </a>
                     <div className="flex flex-wrap gap-2 pt-2">
                       {selectedProfileStd.githubUrl && (
-                        <a href={selectedProfileStd.githubUrl} target="_blank" rel="noopener noreferrer" className="rounded-full px-2.5 py-1 text-[10px] font-bold leap-brand-pill">
+                        <a href={selectedProfileStd.githubUrl} target="_blank" rel="noopener noreferrer" className="rounded-full px-2.5 py-1 text-[10px] font-bold bg-[var(--bg-page)] border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
                           GitHub
                         </a>
                       )}
                       {selectedProfileStd.portfolioUrl && (
-                        <a href={selectedProfileStd.portfolioUrl} target="_blank" rel="noopener noreferrer" className="rounded-full px-2.5 py-1 text-[10px] font-bold leap-emerald-pill">
+                        <a href={selectedProfileStd.portfolioUrl} target="_blank" rel="noopener noreferrer" className="rounded-full px-2.5 py-1 text-[10px] font-bold bg-[var(--bg-page)] border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
                           Portfolio
                         </a>
                       )}
@@ -669,16 +844,16 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
                 </div>
 
                 {/* Skills Section */}
-                <div className="space-y-2 border-t border-gray-100 dark:border-slate-800 pt-4">
-                  <h4 className="text-xs font-bold uppercase tracking-widest text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                    <Compass className="h-4 w-4 text-[#007aff]" />
+                <div className="space-y-2 border-t border-[var(--border-color)] pt-4">
+                  <h4 className="text-xs font-bold uppercase tracking-widest flex items-center gap-1.5">
+                    <MaterialIcon name="explore" className="text-base text-[#D4AF37]" />
                     <span>Skills</span>
                   </h4>
                   <div className="flex flex-wrap gap-1.5">
                     {selectedProfileStd.skills.map((sk) => (
                       <span
                         key={sk}
-                        className="rounded-lg bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 px-2.5 py-1 text-[10px] font-medium"
+                        className="rounded-lg bg-[var(--bg-page)] text-[var(--text-primary)] border border-[var(--border-color)] px-2.5 py-1 text-[10px] font-medium"
                       >
                         {sk}
                       </span>
@@ -687,9 +862,9 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
                 </div>
 
                 {/* Projects Section */}
-                <div className="space-y-3.5 border-t border-gray-100 dark:border-slate-800 pt-4">
-                  <h4 className="text-xs font-bold uppercase tracking-widest text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                    <Briefcase className="h-4 w-4 text-[#10B981]" />
+                <div className="space-y-3.5 border-t border-[var(--border-color)] pt-4">
+                  <h4 className="text-xs font-bold uppercase tracking-widest flex items-center gap-1.5">
+                    <MaterialIcon name="business_center" className="text-base text-emerald-500" />
                     <span>Projects</span>
                   </h4>
 
@@ -697,17 +872,17 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
                     {selectedProfileStd.projects.map((proj, idx) => (
                       <div
                         key={idx}
-                        className="rounded-xl border border-gray-100 dark:border-slate-800 p-4 bg-gray-50/50 dark:bg-slate-950/20 space-y-2"
+                        className="rounded-xl border border-[var(--border-color)] p-4 bg-[var(--bg-page)]/50 space-y-2"
                       >
-                        <h5 className="text-xs font-bold text-slate-900 dark:text-slate-200 hover:text-[#007aff] transition-colors flex items-center gap-1">
+                        <h5 className="text-xs font-bold flex items-center gap-1">
                           <span>{proj.title}</span>
                         </h5>
-                        <p className="text-[11px] text-gray-500 dark:text-slate-400 leading-normal">{proj.description}</p>
+                        <p className="text-[11px] text-[var(--text-secondary)] leading-normal">{proj.description}</p>
                         <div className="flex flex-wrap gap-1 pt-1.5">
                           {proj.tags.map((tg) => (
                             <span
                               key={tg}
-                              className="rounded bg-[#e8f2ff] text-[9px] font-semibold text-[#0066cc] dark:bg-[#0a84ff]/12 dark:text-[#0a84ff] px-1.5 py-0.5"
+                              className="rounded bg-[#D4AF37]/10 text-[9px] font-semibold text-[#D4AF37] border border-[#D4AF37]/10 px-1.5 py-0.5"
                             >
                               {tg}
                             </span>
@@ -717,13 +892,15 @@ export default function MentorDashboard({ user, currentTab }: MentorDashboardPro
                     ))}
                   </div>
                 </div>
+
               </div>
             ) : (
-              <p className="text-center text-xs text-gray-400 italic">Select a student directory profile.</p>
+              <p className="text-center text-xs text-[var(--text-secondary)] italic">Select a student directory profile.</p>
             )}
-          </div>
+          </Panel>
         </div>
       )}
+
     </div>
   );
 }

@@ -2,29 +2,37 @@ import "dotenv/config";
 import { Pool, types } from "pg";
 import { INITIAL_LEAVES, INITIAL_USERS, MOCK_ATTENDANCE } from "./data";
 import {
+  UserProfile,
   AttendanceRecord,
-  DirectMessage,
-  GroupMessage,
-  IncubationIdea,
+  AttendanceConfig,
   LeaveRequest,
-  PostedProject,
+  DirectMessage,
+  Channel,
+  MessageReaction,
+  ChatAttachment,
+  GroupMessage,
   PublicFeedback,
-  UserProfile
+  PostedProject,
+  IncubationIdea,
+  Notification,
+  AuditLog,
+  FaceVerificationMetadata
 } from "./types";
 
 export type DbUser = UserProfile & { passwordHash: string };
 
-const pool = new Pool({
+export const pool = new Pool({
   host: process.env.POSTGRES_HOST || "127.0.0.1",
   port: Number(process.env.POSTGRES_PORT || 5432),
   user: process.env.POSTGRES_USER || "postgres",
-  password: process.env.POSTGRES_PASSWORD || "",
+  password: process.env.POSTGRES_PASSWORD || "Kellampalli@18",
   database: process.env.POSTGRES_DATABASE || "postgres"
 });
 
 types.setTypeParser(1082, (value) => value);
+types.setTypeParser(1700, (value) => Number(value)); // parse numeric fields as numbers
 
-const getLocalDate = () => {
+export const getLocalDate = () => {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: process.env.APP_TIMEZONE || "Asia/Kolkata",
     year: "numeric",
@@ -74,6 +82,13 @@ const mapAttendance = (row: any): AttendanceRecord => ({
   checkInTime: toIsoString(row.check_in_time),
   checkOutTime: toIsoString(row.check_out_time),
   location: row.location || undefined,
+  latitude: row.latitude ? Number(row.latitude) : undefined,
+  longitude: row.longitude ? Number(row.longitude) : undefined,
+  accuracy: row.accuracy ? Number(row.accuracy) : undefined,
+  deviceId: row.device_id || undefined,
+  verificationStatus: row.verification_status || undefined,
+  distanceFromCampus: row.distance_from_campus ? Number(row.distance_from_campus) : undefined,
+  checkInMode: row.check_in_mode || undefined,
   verified: Boolean(row.verified)
 });
 
@@ -97,13 +112,20 @@ const mapMessage = (row: any): DirectMessage => ({
   timestamp: toIsoString(row.created_at) || new Date().toISOString()
 });
 
-const mapGroupMessage = (row: any): GroupMessage => ({
+const mapProject = (row: any): PostedProject => ({
   id: row.id,
-  groupId: row.group_id,
-  senderId: row.sender_id,
-  senderName: row.sender_name,
-  text: row.text,
-  timestamp: toIsoString(row.created_at) || new Date().toISOString()
+  studentId: row.student_id,
+  studentName: row.student_name,
+  studentEmail: row.student_email,
+  avatarUrl: row.avatar_url || undefined,
+  title: row.title,
+  description: row.description,
+  tags: row.tags || [],
+  githubUrl: row.github_url || undefined,
+  liveUrl: row.live_url || undefined,
+  timestamp: toIsoString(row.created_at) || new Date().toISOString(),
+  feedbacks: row.feedbacks || [],
+  averageRating: Number(row.average_rating || 0)
 });
 
 const mapIncubationIdea = (row: any): IncubationIdea => ({
@@ -119,20 +141,26 @@ const mapIncubationIdea = (row: any): IncubationIdea => ({
   createdAt: toIsoString(row.created_at) || new Date().toISOString()
 });
 
-const mapProject = (row: any): PostedProject => ({
+const mapNotification = (row: any): Notification => ({
   id: row.id,
-  studentId: row.student_id,
-  studentName: row.student_name,
-  studentEmail: row.student_email,
-  avatarUrl: row.avatar_url || undefined,
+  userId: row.user_id,
   title: row.title,
-  description: row.description,
-  tags: row.tags || [],
-  githubUrl: row.github_url || undefined,
-  liveUrl: row.live_url || undefined,
-  timestamp: toIsoString(row.created_at) || new Date().toISOString(),
-  feedbacks: row.feedbacks || [],
-  averageRating: Number(row.average_rating || 0)
+  message: row.message,
+  type: row.type,
+  isRead: Boolean(row.is_read),
+  createdAt: toIsoString(row.created_at) || new Date().toISOString()
+});
+
+const mapAuditLog = (row: any): AuditLog => ({
+  id: row.id,
+  userId: row.user_id || undefined,
+  userName: row.user_name || undefined,
+  action: row.action,
+  details: row.details || undefined,
+  ipAddress: row.ip_address || undefined,
+  userAgent: row.user_agent || undefined,
+  isFraudAlert: Boolean(row.is_fraud_alert),
+  createdAt: toIsoString(row.created_at) || new Date().toISOString()
 });
 
 export async function createTables() {
@@ -153,6 +181,28 @@ export async function createTables() {
       password_hash TEXT NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS roles (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL UNIQUE
+    );
+
+    CREATE TABLE IF NOT EXISTS permissions (
+      id TEXT PRIMARY KEY,
+      role_id TEXT REFERENCES roles(id) ON DELETE CASCADE,
+      permission TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS attendance_config (
+      id TEXT PRIMARY KEY,
+      attendance_date DATE NOT NULL UNIQUE,
+      attendance_mode TEXT NOT NULL CHECK (attendance_mode IN ('offline', 'online', 'hybrid')),
+      start_time TEXT NOT NULL DEFAULT '09:00',
+      end_time TEXT NOT NULL DEFAULT '18:00',
+      created_by TEXT REFERENCES users(id) ON DELETE SET NULL,
+      remarks TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
     CREATE TABLE IF NOT EXISTS attendance (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -161,11 +211,83 @@ export async function createTables() {
       check_in_time TIMESTAMPTZ,
       check_out_time TIMESTAMPTZ,
       location TEXT,
+      latitude NUMERIC(9, 6),
+      longitude NUMERIC(9, 6),
+      accuracy NUMERIC(6, 2),
+      device_id TEXT,
+      verification_status TEXT CHECK (verification_status IN ('Verified', 'Warning', 'Manual Review', 'Rejected')),
+      distance_from_campus NUMERIC(10, 2),
+      check_in_mode TEXT CHECK (check_in_mode IN ('offline', 'online')),
       verified BOOLEAN NOT NULL DEFAULT false,
       UNIQUE (user_id, attendance_date)
     );
 
-    CREATE TABLE IF NOT EXISTS leaves (
+    CREATE TABLE IF NOT EXISTS attendance_selfies (
+      id TEXT PRIMARY KEY,
+      attendance_id TEXT NOT NULL REFERENCES attendance(id) ON DELETE CASCADE,
+      selfie_url TEXT NOT NULL,
+      image_hash TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
+    CREATE TABLE IF NOT EXISTS face_verification (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      face_verification_status TEXT CHECK (face_verification_status IN ('verified', 'failed', 'unconfigured')),
+      face_provider TEXT,
+      face_confidence NUMERIC(5, 2),
+      face_match_score NUMERIC(5, 2),
+      verified_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
+    CREATE TABLE IF NOT EXISTS channels (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL UNIQUE,
+      type TEXT NOT NULL DEFAULT 'text',
+      description TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
+    CREATE TABLE IF NOT EXISTS channel_members (
+      channel_id TEXT REFERENCES channels(id) ON DELETE CASCADE,
+      user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+      joined_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      PRIMARY KEY (channel_id, user_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS messages (
+      id TEXT PRIMARY KEY,
+      channel_id TEXT REFERENCES channels(id) ON DELETE CASCADE,
+      sender_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      receiver_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+      text TEXT NOT NULL,
+      is_pinned BOOLEAN NOT NULL DEFAULT false,
+      parent_id TEXT REFERENCES messages(id) ON DELETE SET NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
+    CREATE TABLE IF NOT EXISTS message_reactions (
+      id TEXT PRIMARY KEY,
+      message_id TEXT NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      emoji TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE (message_id, user_id, emoji)
+    );
+
+    CREATE TABLE IF NOT EXISTS chat_attachments (
+      id TEXT PRIMARY KEY,
+      message_id TEXT NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
+      public_id TEXT NOT NULL,
+      secure_url TEXT NOT NULL,
+      file_name TEXT NOT NULL,
+      file_type TEXT NOT NULL,
+      file_size INT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
+    CREATE TABLE IF NOT EXISTS leave_requests (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       start_date DATE NOT NULL,
@@ -175,29 +297,6 @@ export async function createTables() {
       applied_on DATE NOT NULL,
       approved_by TEXT REFERENCES users(id) ON DELETE SET NULL,
       remarks TEXT
-    );
-
-    CREATE TABLE IF NOT EXISTS messages (
-      id TEXT PRIMARY KEY,
-      sender_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      receiver_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      text TEXT NOT NULL,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-    );
-
-    CREATE TABLE IF NOT EXISTS group_messages (
-      id TEXT PRIMARY KEY,
-      group_id TEXT NOT NULL,
-      sender_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      sender_name TEXT NOT NULL,
-      text TEXT NOT NULL,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-    );
-
-    CREATE TABLE IF NOT EXISTS otps (
-      email TEXT PRIMARY KEY,
-      code TEXT NOT NULL,
-      expires_at TIMESTAMPTZ NOT NULL
     );
 
     CREATE TABLE IF NOT EXISTS posted_projects (
@@ -216,6 +315,34 @@ export async function createTables() {
       average_rating NUMERIC(3, 1) NOT NULL DEFAULT 0
     );
 
+    CREATE TABLE IF NOT EXISTS notifications (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      title TEXT NOT NULL,
+      message TEXT NOT NULL,
+      type TEXT NOT NULL CHECK (type IN ('attendance', 'message', 'leave', 'project', 'announcement', 'system')),
+      is_read BOOLEAN NOT NULL DEFAULT false,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
+    CREATE TABLE IF NOT EXISTS otps (
+      email TEXT PRIMARY KEY,
+      code TEXT NOT NULL,
+      expires_at TIMESTAMPTZ NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS audit_logs (
+      id TEXT PRIMARY KEY,
+      user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+      user_name TEXT,
+      action TEXT NOT NULL,
+      details TEXT,
+      ip_address TEXT,
+      user_agent TEXT,
+      is_fraud_alert BOOLEAN NOT NULL DEFAULT false,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
     CREATE TABLE IF NOT EXISTS incubation_ideas (
       id TEXT PRIMARY KEY,
       title TEXT NOT NULL,
@@ -229,23 +356,27 @@ export async function createTables() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
   `);
-
-  await pool.query(`
-    ALTER TABLE users ADD COLUMN IF NOT EXISTS github_url TEXT;
-    ALTER TABLE users ADD COLUMN IF NOT EXISTS portfolio_url TEXT;
-    ALTER TABLE group_messages DROP CONSTRAINT IF EXISTS group_messages_group_id_check;
-  `);
 }
 
 export async function resetAndSeedDatabase() {
   await pool.query(`
-    DROP TABLE IF EXISTS attendance CASCADE;
-    DROP TABLE IF EXISTS leaves CASCADE;
-    DROP TABLE IF EXISTS messages CASCADE;
-    DROP TABLE IF EXISTS group_messages CASCADE;
-    DROP TABLE IF EXISTS otps CASCADE;
-    DROP TABLE IF EXISTS posted_projects CASCADE;
     DROP TABLE IF EXISTS incubation_ideas CASCADE;
+    DROP TABLE IF EXISTS audit_logs CASCADE;
+    DROP TABLE IF EXISTS otps CASCADE;
+    DROP TABLE IF EXISTS notifications CASCADE;
+    DROP TABLE IF EXISTS posted_projects CASCADE;
+    DROP TABLE IF EXISTS leave_requests CASCADE;
+    DROP TABLE IF EXISTS chat_attachments CASCADE;
+    DROP TABLE IF EXISTS message_reactions CASCADE;
+    DROP TABLE IF EXISTS messages CASCADE;
+    DROP TABLE IF EXISTS channel_members CASCADE;
+    DROP TABLE IF EXISTS channels CASCADE;
+    DROP TABLE IF EXISTS face_verification CASCADE;
+    DROP TABLE IF EXISTS attendance_selfies CASCADE;
+    DROP TABLE IF EXISTS attendance CASCADE;
+    DROP TABLE IF EXISTS attendance_config CASCADE;
+    DROP TABLE IF EXISTS permissions CASCADE;
+    DROP TABLE IF EXISTS roles CASCADE;
     DROP TABLE IF EXISTS users CASCADE;
   `);
   await createTables();
@@ -256,6 +387,17 @@ export async function seedDatabase() {
   const { rows } = await pool.query("SELECT COUNT(*)::int AS count FROM users");
   if (rows[0].count > 0) return;
 
+  // 1. Roles
+  const roles = [
+    { id: "student", name: "Student" },
+    { id: "mentor", name: "Mentor" },
+    { id: "admin", name: "Administrator" }
+  ];
+  for (const r of roles) {
+    await pool.query("INSERT INTO roles (id, name) VALUES ($1, $2)", [r.id, r.name]);
+  }
+
+  // 2. Users
   for (const user of INITIAL_USERS) {
     const firstName = user.name.split(" ")[0].toLowerCase();
     await pool.query(
@@ -280,28 +422,64 @@ export async function seedDatabase() {
     );
   }
 
+  // 3. Attendance Config Presets (Set today's mode as Hybrid)
   const currentDate = getLocalDate();
+  await pool.query(
+    `INSERT INTO attendance_config (id, attendance_date, attendance_mode, start_time, end_time, created_by, remarks)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+    [
+      `cfg-${Date.now()}`,
+      currentDate,
+      "hybrid",
+      "09:00",
+      "18:00",
+      "saikrishna",
+      "Standard Hybrid Check-in desk for experiential build work."
+    ]
+  );
+
+  // 4. Seeding Attendance Logs
   for (const [index, att] of MOCK_ATTENDANCE.entries()) {
+    const id = `att-${index + 1}`;
+    const distance = att.checkInTime ? 15 : null; // 15m away (Verified)
+    const verification = att.checkInTime ? "Verified" : null;
+    const mode = att.checkInTime ? "offline" : null;
+    
     await pool.query(
       `INSERT INTO attendance
-        (id, user_id, attendance_date, status, check_in_time, location, verified)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        (id, user_id, attendance_date, status, check_in_time, location, latitude, longitude, accuracy, device_id, verification_status, distance_from_campus, check_in_mode, verified)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
       [
-        `att-${index + 1}`,
+        id,
         att.userId,
         currentDate,
         att.status,
         att.checkInTime ? `${currentDate}T${att.checkInTime}+05:30` : null,
         att.checkInTime ? "On-Campus, LeapStart Hyderabad Lab" : null,
+        att.checkInTime ? 17.4125164 : null,
+        att.checkInTime ? 78.3365692 : null,
+        att.checkInTime ? 10.00 : null,
+        att.checkInTime ? "desktop-auth-hash" : null,
+        verification,
+        distance,
+        mode,
         Boolean(att.checkInTime)
       ]
     );
+
+    if (att.checkInTime) {
+      await pool.query(
+        `INSERT INTO attendance_selfies (id, attendance_id, selfie_url, image_hash)
+         VALUES ($1, $2, $3, $4)`,
+        [`selfie-${index + 1}`, id, `https://api.dicebear.com/7.x/avataaars/svg?seed=${att.userId}`, `hash-${att.userId}`]
+      );
+    }
   }
 
+  // 5. Leave requests
   for (const leave of INITIAL_LEAVES) {
     await pool.query(
-      `INSERT INTO leaves
-        (id, user_id, start_date, end_date, reason, status, applied_on, approved_by, remarks)
+      `INSERT INTO leave_requests (id, user_id, start_date, end_date, reason, status, applied_on, approved_by, remarks)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
       [
         leave.id,
@@ -317,31 +495,45 @@ export async function seedDatabase() {
     );
   }
 
+  // 6. Channels
+  const channels = [
+    { id: "announcements", name: "announcements", type: "announcement", desc: "Official announcements from mentors and founders." },
+    { id: "general", name: "general", type: "text", desc: "General chat area for everyone." },
+    { id: "attendance-help", name: "attendance-help", type: "text", desc: "Report GPS or Camera errors for manual reviews." },
+    { id: "placements", name: "placements", type: "text", desc: "Placement calls and interview details." },
+    { id: "projects", name: "projects", type: "text", desc: "Discuss portfolios, showcase, and peer critiques." },
+    { id: "internships", name: "internships", type: "text", desc: "Paid internship postings and requirements." },
+    { id: "random", name: "random", type: "text", desc: "Off-topic chats." },
+    { id: "year-1", name: "year-1", type: "text", desc: "1st year student lounge." },
+    { id: "year-2", name: "year-2", type: "text", desc: "2nd year student lounge." },
+    { id: "year-3", name: "year-3", type: "text", desc: "3rd year student lounge." },
+    { id: "year-4", name: "year-4", type: "text", desc: "4th year student lounge." }
+  ];
+  for (const c of channels) {
+    await pool.query(
+      "INSERT INTO channels (id, name, type, description) VALUES ($1, $2, $3, $4) ON CONFLICT (name) DO NOTHING",
+      [c.id, c.name, c.type, c.desc]
+    );
+  }
+
+  // 7. Seed Messages
   await pool.query(
-    `INSERT INTO messages (id, sender_id, receiver_id, text, created_at)
+    `INSERT INTO messages (id, channel_id, sender_id, text, created_at)
      VALUES
-      ($1, $2, $3, $4, $5),
-      ($6, $7, $8, $9, $10),
-      ($11, $12, $13, $14, $15)`,
+      ($1, 'general', 'aadhira', 'Hey everyone! Welcome to V3 Discord-style Lounge! Test out markdown here! **bold** or \`code\`.', $2),
+      ($3, 'general', 'suhas', 'Looking outstanding! Ready to review your Geofenced selfies on the Mentor deck.', $4),
+      ($5, 'announcements', 'saikrishna', 'V3 Verification Paradigm is now fully live. Phone SMS OTPs and facial confidence parameters are now online.', $6)`,
     [
-      "msg-init-1",
-      "aadhira",
-      "abhishek",
-      "Hey Abhishek, did you complete Goli sir's DB Schema exercise yet?",
+      "msg-ch-1",
+      new Date(Date.now() - 7200000).toISOString(),
+      "msg-ch-2",
       new Date(Date.now() - 3600000).toISOString(),
-      "msg-init-2",
-      "abhishek",
-      "aadhira",
-      "Yes! Loaded it using Postgres tables. Direct messaging works too, completely locked from admins!",
-      new Date(Date.now() - 3000000).toISOString(),
-      "msg-init-3",
-      "aadhira",
-      "abhishek",
-      "That's exactly what I wanted. Privacy compliance is top notch.",
-      new Date(Date.now() - 2500000).toISOString()
+      "msg-ch-3",
+      new Date(Date.now() - 1800000).toISOString()
     ]
   );
 
+  // 8. Projects Seeding
   await createProject({
     id: "proj-1",
     studentId: "aadhira",
@@ -365,47 +557,9 @@ export async function seedDatabase() {
           "Outstanding implementation of local image matrices! Let's ensure thread pooling works efficiently for high fps streams.",
         rating: 5,
         timestamp: new Date(Date.now() - 72000000).toISOString()
-      },
-      {
-        id: "f-2",
-        authorName: "Abhishek Singh",
-        authorRole: "2nd Year Student",
-        authorPfp: "https://api.dicebear.com/7.x/avataaars/svg?seed=Abhishek",
-        comment:
-          "Tested this directly inside the Hyderabad lab. The inference frame rate is amazing under minimal hardware constraints!",
-        rating: 4,
-        timestamp: new Date(Date.now() - 36400000).toISOString()
       }
     ],
-    averageRating: 4.5
-  });
-
-  await createProject({
-    id: "proj-2",
-    studentId: "abhishek",
-    studentName: "Abhishek Singh",
-    studentEmail: "abhishek@leapstart.gmail.com",
-    avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Abhishek",
-    title: "Predictive Churn Multilayer Perceptron",
-    description:
-      "Custom multi-layer MLP predictive classifier trained on large server log indexes to map student retainability scores in telemetry records.",
-    tags: ["Deep Learning", "TensorFlow", "SQL"],
-    githubUrl: "https://github.com/abhishek/predictive-analytics",
-    liveUrl: "https://leapstart.in/showcase/churn",
-    timestamp: new Date(Date.now() - 172800000).toISOString(),
-    feedbacks: [
-      {
-        id: "f-3",
-        authorName: "Goli Venu Gopal",
-        authorRole: "Database & Backend API Mentor",
-        authorPfp: "https://api.dicebear.com/7.x/avataaars/svg?seed=M02_Goli",
-        comment:
-          "Exceptional schema structure. Storing normalized state tokens securely ensures this scales comfortably across servers.",
-        rating: 5,
-        timestamp: new Date(Date.now() - 144000000).toISOString()
-      }
-    ],
-    averageRating: 5
+    averageRating: 5.0
   });
 }
 
@@ -424,14 +578,7 @@ export async function ensureCohortYears() {
         (id, name, email, role, linkedin_url, github_url, portfolio_url, pfp_url, bio, skills, projects, specialty, password_hash)
        VALUES ($1, $2, $3, 'student', $4, $5, $6, $7, $8, $9::jsonb, $10::jsonb, '1st Year Student', $11)
        ON CONFLICT (id) DO UPDATE
-       SET specialty = '1st Year Student',
-         name = EXCLUDED.name,
-         email = EXCLUDED.email,
-         linkedin_url = EXCLUDED.linkedin_url,
-         pfp_url = EXCLUDED.pfp_url,
-         bio = EXCLUDED.bio,
-         skills = EXCLUDED.skills,
-         projects = EXCLUDED.projects`,
+       SET specialty = '1st Year Student'`,
       [
         student.id,
         student.name,
@@ -443,7 +590,7 @@ export async function ensureCohortYears() {
         student.bio,
         JSON.stringify(student.skills),
         JSON.stringify(student.projects),
-        `${student.name.split(" ")[0].toLowerCase()}@123`
+        `${student.id}@123`
       ]
     );
   }
@@ -507,6 +654,7 @@ export async function createStudent(input: {
     .slice(0, 42);
   const id = (input.id || generatedId || normalizedEmail.split("@")[0]).toLowerCase();
   const firstName = normalizedName.split(" ")[0] || id;
+  
   const user: DbUser = {
     id,
     name: normalizedName,
@@ -516,9 +664,7 @@ export async function createStudent(input: {
     githubUrl: input.githubUrl?.trim() || undefined,
     portfolioUrl: input.portfolioUrl?.trim() || undefined,
     pfpUrl: input.pfpUrl?.trim() || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(normalizedName)}`,
-    bio:
-      input.bio?.trim() ||
-      `LeapStart student building attendance-ready projects and experiential portfolio artifacts.`,
+    bio: input.bio?.trim() || `LeapStart student building attendance-ready projects and experiential portfolio artifacts.`,
     skills: input.skills?.filter(Boolean) || ["JavaScript", "React", "PostgreSQL"],
     projects: [],
     specialty: input.specialty?.trim() || "1st Year Student",
@@ -543,13 +689,6 @@ export async function createStudent(input: {
       user.specialty || null,
       user.passwordHash
     ]
-  );
-
-  await pool.query(
-    `INSERT INTO attendance (id, user_id, attendance_date, status, verified)
-     VALUES ($1, $2, $3, 'absent', false)
-     ON CONFLICT (user_id, attendance_date) DO NOTHING`,
-    [`att-${Date.now()}-${Math.floor(Math.random() * 1000)}`, user.id, getLocalDate()]
   );
 
   return mapUser(result.rows[0]);
@@ -614,7 +753,7 @@ export async function updateUserProfile(
 
 export async function listAttendance(filters: { userId?: string; date?: string }) {
   const conditions: string[] = [];
-  const values: string[] = [];
+  const values: any[] = [];
   if (filters.userId) {
     values.push(filters.userId);
     conditions.push(`user_id = $${values.length}`);
@@ -628,38 +767,93 @@ export async function listAttendance(filters: { userId?: string; date?: string }
   return result.rows.map(mapAttendance);
 }
 
-export async function checkInAttendance(userId: string, status: AttendanceRecord["status"], location?: string) {
+export async function checkInAttendance(
+  userId: string,
+  status: AttendanceRecord["status"],
+  location?: string,
+  lat?: number,
+  lng?: number,
+  accuracy?: number,
+  selfieUrl?: string,
+  deviceId?: string,
+  verificationStatus?: AttendanceRecord["verificationStatus"],
+  distance?: number,
+  mode?: AttendanceRecord["checkInMode"]
+) {
   const todayStr = getLocalDate();
   const now = new Date().toISOString();
+  const id = `att-${Date.now()}`;
+  
   await pool.query(
-    `INSERT INTO attendance (id, user_id, attendance_date, status, check_in_time, location, verified)
-     VALUES ($1, $2, $3, $4, $5, $6, true)
+    `INSERT INTO attendance
+      (id, user_id, attendance_date, status, check_in_time, location, latitude, longitude, accuracy, device_id, verification_status, distance_from_campus, check_in_mode, verified)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, true)
      ON CONFLICT (user_id, attendance_date)
      DO UPDATE SET status = EXCLUDED.status,
        check_in_time = EXCLUDED.check_in_time,
        location = EXCLUDED.location,
+       latitude = EXCLUDED.latitude,
+       longitude = EXCLUDED.longitude,
+       accuracy = EXCLUDED.accuracy,
+       device_id = EXCLUDED.device_id,
+       verification_status = EXCLUDED.verification_status,
+       distance_from_campus = EXCLUDED.distance_from_campus,
+       check_in_mode = EXCLUDED.check_in_mode,
        verified = true`,
-    [`att-${Date.now()}`, userId, todayStr, status, now, location || "Remote Laboratory Interface"]
+    [
+      id,
+      userId,
+      todayStr,
+      status,
+      now,
+      location || "Hybrid telemetry",
+      lat || null,
+      lng || null,
+      accuracy || null,
+      deviceId || "web-client",
+      verificationStatus || "Verified",
+      distance || null,
+      mode || "online"
+    ]
   );
-  return listAttendance({});
+
+  const finalRecordResult = await pool.query(
+    "SELECT id FROM attendance WHERE user_id = $1 AND attendance_date = $2",
+    [userId, todayStr]
+  );
+  const finalId = finalRecordResult.rows[0].id;
+
+  if (selfieUrl) {
+    // Generate simple content hash representing duplicate selfie detection checks
+    const hash = `img-hash-${selfieUrl.slice(-15)}`;
+    await pool.query(
+      `INSERT INTO attendance_selfies (id, attendance_id, selfie_url, image_hash)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT DO NOTHING`,
+      [`selfie-${Date.now()}`, finalId, selfieUrl, hash]
+    );
+  }
+
+  return listAttendance({ userId });
 }
 
 export async function updateAttendanceBatch(records: Pick<AttendanceRecord, "userId" | "date" | "status">[]) {
   for (const rec of records) {
+    const id = `att-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     await pool.query(
       `INSERT INTO attendance (id, user_id, attendance_date, status, verified)
        VALUES ($1, $2, $3, $4, true)
        ON CONFLICT (user_id, attendance_date)
        DO UPDATE SET status = EXCLUDED.status, verified = true`,
-      [`att-${Date.now()}-${Math.floor(Math.random() * 1000)}`, rec.userId, rec.date, rec.status]
+      [id, rec.userId, rec.date, rec.status]
     );
   }
 }
 
 export async function listLeaves(userId?: string) {
   const result = userId
-    ? await pool.query("SELECT * FROM leaves WHERE user_id = $1 ORDER BY applied_on DESC", [userId])
-    : await pool.query("SELECT * FROM leaves ORDER BY applied_on DESC");
+    ? await pool.query("SELECT * FROM leave_requests WHERE user_id = $1 ORDER BY applied_on DESC", [userId])
+    : await pool.query("SELECT * FROM leave_requests ORDER BY applied_on DESC");
   return result.rows.map(mapLeave);
 }
 
@@ -679,7 +873,7 @@ export async function createLeave(input: {
     appliedOn: getLocalDate()
   };
   await pool.query(
-    `INSERT INTO leaves (id, user_id, start_date, end_date, reason, status, applied_on)
+    `INSERT INTO leave_requests (id, user_id, start_date, end_date, reason, status, applied_on)
      VALUES ($1, $2, $3, $4, $5, $6, $7)`,
     [
       newRequest.id,
@@ -695,11 +889,11 @@ export async function createLeave(input: {
 }
 
 export async function respondToLeave(id: string, status: LeaveRequest["status"], remarks: string, approvedBy: string) {
-  const result = await pool.query("SELECT * FROM leaves WHERE id = $1", [id]);
+  const result = await pool.query("SELECT * FROM leave_requests WHERE id = $1", [id]);
   if (!result.rows[0]) return false;
   const leave = mapLeave(result.rows[0]);
 
-  await pool.query("UPDATE leaves SET status = $1, remarks = $2, approved_by = $3 WHERE id = $4", [
+  await pool.query("UPDATE leave_requests SET status = $1, remarks = $2, approved_by = $3 WHERE id = $4", [
     status,
     remarks || null,
     approvedBy,
@@ -711,12 +905,13 @@ export async function respondToLeave(id: string, status: LeaveRequest["status"],
     const end = new Date(`${leave.endDate}T00:00:00Z`);
     while (current <= end) {
       const dateStr = current.toISOString().slice(0, 10);
+      const attId = `att-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
       await pool.query(
         `INSERT INTO attendance (id, user_id, attendance_date, status, verified)
          VALUES ($1, $2, $3, 'leave', true)
          ON CONFLICT (user_id, attendance_date)
          DO UPDATE SET status = 'leave', verified = true`,
-        [`att-${Date.now()}-${Math.floor(Math.random() * 1000)}`, leave.userId, dateStr]
+        [attId, leave.userId, dateStr]
       );
       current.setUTCDate(current.getUTCDate() + 1);
     }
@@ -725,10 +920,177 @@ export async function respondToLeave(id: string, status: LeaveRequest["status"],
   return true;
 }
 
+// 7. Channels & Messages
+export async function getChannels(): Promise<Channel[]> {
+  const result = await pool.query("SELECT * FROM channels ORDER BY name ASC");
+  return result.rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    type: row.type as any,
+    description: row.description || undefined,
+    createdAt: row.created_at.toISOString()
+  }));
+}
+
+export async function createChannel(name: string, type: string, description?: string): Promise<Channel> {
+  const id = name.toLowerCase().replace(/[^a-z0-9-]+/g, "-");
+  const result = await pool.query(
+    "INSERT INTO channels (id, name, type, description) VALUES ($1, $2, $3, $4) RETURNING *",
+    [id, name.trim(), type, description || null]
+  );
+  const row = result.rows[0];
+  return {
+    id: row.id,
+    name: row.name,
+    type: row.type,
+    description: row.description || undefined,
+    createdAt: row.created_at.toISOString()
+  };
+}
+
+export async function listChannelMessages(channelId: string): Promise<GroupMessage[]> {
+  const result = await pool.query(
+    `SELECT m.*, u.name as sender_name, u.role as sender_role, u.pfp_url as sender_pfp
+     FROM messages m
+     JOIN users u ON m.sender_id = u.id
+     WHERE m.channel_id = $1
+     ORDER BY m.created_at ASC`,
+    [channelId]
+  );
+  
+  const messages: GroupMessage[] = [];
+  for (const row of result.rows) {
+    const reactionsRes = await pool.query(
+      `SELECT r.*, u.name as user_name
+       FROM message_reactions r
+       JOIN users u ON r.user_id = u.id
+       WHERE r.message_id = $1`,
+      [row.id]
+    );
+
+    const attachmentsRes = await pool.query(
+      `SELECT * FROM chat_attachments WHERE message_id = $1`,
+      [row.id]
+    );
+
+    messages.push({
+      id: row.id,
+      groupId: row.channel_id,
+      senderId: row.sender_id,
+      senderName: row.sender_name,
+      senderRole: row.sender_role,
+      senderPfp: row.sender_pfp,
+      text: row.text,
+      timestamp: row.created_at.toISOString(),
+      isPinned: Boolean(row.is_pinned),
+      parentId: row.parent_id || undefined,
+      reactions: reactionsRes.rows.map((r) => ({
+        id: r.id,
+        messageId: r.message_id,
+        userId: r.user_id,
+        userName: r.user_name,
+        emoji: r.emoji
+      })),
+      attachments: attachmentsRes.rows.map((a) => ({
+        id: a.id,
+        messageId: a.message_id,
+        publicId: a.public_id,
+        secureUrl: a.secure_url,
+        fileName: a.file_name,
+        fileType: a.file_type,
+        fileSize: Number(a.file_size),
+        createdAt: a.created_at.toISOString()
+      }))
+    });
+  }
+  return messages;
+}
+
+export async function createChannelMessage(input: {
+  channelId: string;
+  senderId: string;
+  text: string;
+  parentId?: string;
+}): Promise<GroupMessage> {
+  const id = `msg-${Date.now()}`;
+  await pool.query(
+    "INSERT INTO messages (id, channel_id, sender_id, text, parent_id) VALUES ($1, $2, $3, $4, $5)",
+    [id, input.channelId, input.senderId, input.text, input.parentId || null]
+  );
+
+  const msgQuery = await pool.query(
+    `SELECT m.*, u.name as sender_name, u.role as sender_role, u.pfp_url as sender_pfp
+     FROM messages m
+     JOIN users u ON m.sender_id = u.id
+     WHERE m.id = $1`,
+    [id]
+  );
+  
+  const row = msgQuery.rows[0];
+  return {
+    id: row.id,
+    groupId: row.channel_id,
+    senderId: row.sender_id,
+    senderName: row.sender_name,
+    senderRole: row.sender_role,
+    senderPfp: row.sender_pfp,
+    text: row.text,
+    timestamp: row.created_at.toISOString(),
+    isPinned: false,
+    parentId: row.parent_id || undefined,
+    reactions: [],
+    attachments: []
+  };
+}
+
+export async function addMessageReaction(messageId: string, userId: string, emoji: string) {
+  const id = `re-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  await pool.query(
+    `INSERT INTO message_reactions (id, message_id, user_id, emoji)
+     VALUES ($1, $2, $3, $4)
+     ON CONFLICT (message_id, user_id, emoji) DO NOTHING`,
+    [id, messageId, userId, emoji]
+  );
+}
+
+export async function removeMessageReaction(messageId: string, userId: string, emoji: string) {
+  await pool.query(
+    "DELETE FROM message_reactions WHERE message_id = $1 AND user_id = $2 AND emoji = $3",
+    [messageId, userId, emoji]
+  );
+}
+
+export async function addChatAttachment(input: {
+  messageId: string;
+  publicId: string;
+  secureUrl: string;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+}): Promise<ChatAttachment> {
+  const id = `att-${Date.now()}`;
+  const result = await pool.query(
+    `INSERT INTO chat_attachments (id, message_id, public_id, secure_url, file_name, file_type, file_size)
+     VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+    [id, input.messageId, input.publicId, input.secureUrl, input.fileName, input.fileType, input.fileSize]
+  );
+  const row = result.rows[0];
+  return {
+    id: row.id,
+    messageId: row.message_id,
+    publicId: row.public_id,
+    secureUrl: row.secure_url,
+    fileName: row.file_name,
+    fileType: row.file_type,
+    fileSize: Number(row.file_size),
+    createdAt: row.created_at.toISOString()
+  };
+}
+
 export async function listMessages(userId: string, targetId: string) {
   const result = await pool.query(
     `SELECT * FROM messages
-     WHERE (sender_id = $1 AND receiver_id = $2) OR (sender_id = $2 AND receiver_id = $1)
+     WHERE channel_id IS NULL AND ((sender_id = $1 AND receiver_id = $2) OR (sender_id = $2 AND receiver_id = $1))
      ORDER BY created_at ASC`,
     [userId, targetId]
   );
@@ -744,35 +1106,144 @@ export async function createMessage(senderId: string, receiverId: string, text: 
     timestamp: new Date().toISOString()
   };
   await pool.query(
-    "INSERT INTO messages (id, sender_id, receiver_id, text, created_at) VALUES ($1, $2, $3, $4, $5)",
-    [message.id, message.senderId, message.receiverId, message.text, message.timestamp]
+    "INSERT INTO messages (id, sender_id, receiver_id, text) VALUES ($1, $2, $3, $4)",
+    [message.id, message.senderId, message.receiverId, message.text]
   );
   return message;
 }
 
-export async function listGroupMessages(groupId: string) {
-  const result = await pool.query(
-    `SELECT * FROM group_messages WHERE group_id = $1 ORDER BY created_at ASC`,
-    [groupId]
-  );
-  return result.rows.map(mapGroupMessage);
+// 8. Attendance config
+export async function getAttendanceConfigs(): Promise<AttendanceConfig[]> {
+  const result = await pool.query("SELECT * FROM attendance_config ORDER BY attendance_date DESC");
+  return result.rows.map((row) => ({
+    id: row.id,
+    date: toDateString(row.attendance_date),
+    attendanceMode: row.attendance_mode as any,
+    startTime: row.start_time,
+    endTime: row.end_time,
+    createdBy: row.created_by,
+    remarks: row.remarks || undefined,
+    createdAt: row.created_at.toISOString()
+  }));
 }
 
-export async function createGroupMessage(input: { groupId: string; senderId: string; senderName: string; text: string }) {
-  const message: GroupMessage = {
-    id: `grp-${Date.now()}`,
-    groupId: input.groupId,
-    senderId: input.senderId,
-    senderName: input.senderName,
-    text: input.text,
-    timestamp: new Date().toISOString()
+export async function getTodayAttendanceConfig(): Promise<AttendanceConfig | null> {
+  const todayStr = getLocalDate();
+  const result = await pool.query("SELECT * FROM attendance_config WHERE attendance_date = $1 LIMIT 1", [todayStr]);
+  if (!result.rows[0]) return null;
+  const row = result.rows[0];
+  return {
+    id: row.id,
+    date: toDateString(row.attendance_date),
+    attendanceMode: row.attendance_mode as any,
+    startTime: row.start_time,
+    endTime: row.end_time,
+    createdBy: row.created_by,
+    remarks: row.remarks || undefined,
+    createdAt: row.created_at.toISOString()
   };
-  await pool.query(
-    `INSERT INTO group_messages (id, group_id, sender_id, sender_name, text, created_at)
-     VALUES ($1, $2, $3, $4, $5, $6)`,
-    [message.id, message.groupId, message.senderId, message.senderName, message.text, message.timestamp]
+}
+
+export async function upsertAttendanceConfig(input: {
+  date: string;
+  attendanceMode: "offline" | "online" | "hybrid";
+  startTime: string;
+  endTime: string;
+  createdBy: string;
+  remarks?: string;
+}): Promise<AttendanceConfig> {
+  const id = `cfg-${Date.now()}`;
+  const result = await pool.query(
+    `INSERT INTO attendance_config (id, attendance_date, attendance_mode, start_time, end_time, created_by, remarks)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     ON CONFLICT (attendance_date)
+     DO UPDATE SET attendance_mode = EXCLUDED.attendance_mode,
+       start_time = EXCLUDED.start_time,
+       end_time = EXCLUDED.end_time,
+       created_by = EXCLUDED.created_by,
+       remarks = EXCLUDED.remarks
+     RETURNING *`,
+    [id, input.date, input.attendanceMode, input.startTime, input.endTime, input.createdBy, input.remarks || null]
   );
-  return message;
+  const row = result.rows[0];
+  return {
+    id: row.id,
+    date: toDateString(row.attendance_date),
+    attendanceMode: row.attendance_mode as any,
+    startTime: row.start_time,
+    endTime: row.end_time,
+    createdBy: row.created_by,
+    remarks: row.remarks || undefined,
+    createdAt: row.created_at.toISOString()
+  };
+}
+
+// 9. Notifications
+export async function getNotifications(userId: string): Promise<Notification[]> {
+  const result = await pool.query(
+    "SELECT * FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50",
+    [userId]
+  );
+  return result.rows.map(mapNotification);
+}
+
+export async function createNotification(input: {
+  userId: string;
+  title: string;
+  message: string;
+  type: Notification["type"];
+}): Promise<Notification> {
+  const id = `nt-${Date.now()}`;
+  const result = await pool.query(
+    `INSERT INTO notifications (id, user_id, title, message, type)
+     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+    [id, input.userId, input.title, input.message, input.type]
+  );
+  return mapNotification(result.rows[0]);
+}
+
+export async function markNotificationRead(id: string) {
+  await pool.query("UPDATE notifications SET is_read = true WHERE id = $1", [id]);
+}
+
+export async function markAllNotificationsRead(userId: string) {
+  await pool.query("UPDATE notifications SET is_read = true WHERE user_id = $1", [userId]);
+}
+
+// 10. Audit Logs & Fraud Alerts
+export async function getAuditLogs(isFraudOnly = false): Promise<AuditLog[]> {
+  const query = isFraudOnly
+    ? "SELECT * FROM audit_logs WHERE is_fraud_alert = true ORDER BY created_at DESC"
+    : "SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT 100";
+  const result = await pool.query(query);
+  return result.rows.map(mapAuditLog);
+}
+
+export async function createAuditLog(input: {
+  userId?: string;
+  userName?: string;
+  action: string;
+  details?: string;
+  ipAddress?: string;
+  userAgent?: string;
+  isFraudAlert?: boolean;
+}): Promise<AuditLog> {
+  const id = `log-${Date.now()}`;
+  const result = await pool.query(
+    `INSERT INTO audit_logs (id, user_id, user_name, action, details, ip_address, user_agent, is_fraud_alert)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+    [
+      id,
+      input.userId || null,
+      input.userName || null,
+      input.action,
+      input.details || null,
+      input.ipAddress || null,
+      input.userAgent || null,
+      Boolean(input.isFraudAlert)
+    ]
+  );
+  return mapAuditLog(result.rows[0]);
 }
 
 export async function listIncubationIdeas() {
